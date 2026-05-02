@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Skill Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #f7f1e6;
+  --paper: #fffbf3;
+  --line: #e5dcc8;
+  --ink: #2a2620;
+  --ink-2: #665e52;
+  --ink-3: #b3a791;
+  --mango: #ffb14d; --mango-d: #d96b1a; --mango-s: #fff1da;
+  --indigo: #9c8cd9; --indigo-d: #5e49b8; --indigo-s: #ece8f9;
+  --nova: #5aa8e6; --nova-d: #2167a8; --nova-s: #ddeefa;
+  --echo: #6dbe96; --echo-d: #2e7d54; --echo-s: #dcf2e6;
+  --sh: 0 2px 0 rgba(42,38,32,.07), 0 6px 20px rgba(42,38,32,.08);
+  --sh-lg: 0 4px 0 rgba(42,38,32,.09), 0 20px 50px rgba(42,38,32,.16);
+  --r: 18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);font-size:15px;line-height:1.5}
+body{background-image:radial-gradient(circle at 10% 10%,rgba(255,177,77,.12),transparent 38%),radial-gradient(circle at 90% 8%,rgba(156,140,217,.10),transparent 38%),radial-gradient(circle at 8% 92%,rgba(90,168,230,.10),transparent 38%),radial-gradient(circle at 92% 94%,rgba(109,190,150,.10),transparent 38%)}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:600;letter-spacing:-.015em}
+img,svg{display:block}
+button{font-family:inherit;cursor:pointer;border:0;background:0}
+
+/* ── TOP BAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;gap:12px;
+  background:rgba(255,251,243,.88);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:40;
+}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand-mark{
+  width:36px;height:36px;border-radius:11px;
+  background:linear-gradient(135deg,var(--mango),var(--mango-d));
+  display:grid;place-items:center;
+  font-family:'Fraunces',serif;font-weight:700;font-size:17px;color:#fff;
+  transform:rotate(-4deg);
+  box-shadow:0 3px 0 rgba(180,90,20,.35),0 5px 14px rgba(180,90,20,.22)
+}
+.brand-name{font-family:'Fraunces',serif;font-weight:700;font-size:17px;line-height:1}
+.brand-sub{font-size:10px;color:var(--ink-2);font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-top:1px}
+
+.lang-toggle{display:flex;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:3px;gap:1px;flex-shrink:0}
+.lang-toggle button{border:0;background:0;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700;color:var(--ink-2);transition:all .18s;font-family:inherit}
+.lang-toggle button.on{background:var(--ink);color:var(--paper)}
+
+/* ── MAIN ── */
+.office{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
+
+/* Reception */
+.reception{
+  background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--r);padding:18px 20px;
+  display:flex;align-items:center;gap:16px;
+  box-shadow:var(--sh);margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.reception::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--mango-s) 0%,transparent 55%);
+  pointer-events:none
+}
+.rec-avatar{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,#fff6e2,#ffe9be);
+  border:2px solid var(--mango);
+  display:grid;place-items:center;font-size:26px;
+  flex-shrink:0;position:relative;z-index:1;
+}
+.rec-avatar::after{content:'';position:absolute;bottom:2px;right:2px;width:11px;height:11px;background:#4db86a;border:2px solid var(--paper);border-radius:50%}
+.rec-text{flex:1;position:relative;z-index:1}
+.rec-title{font-family:'Fraunces',serif;font-size:17px;font-weight:600;line-height:1.2}
+.rec-sub{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.rec-badge{
+  font-family:'Caveat',cursive;font-size:15px;color:var(--mango-d);
+  background:var(--mango-s);border:1.5px dashed var(--mango);
+  padding:5px 11px;border-radius:8px;flex-shrink:0;
+  transform:rotate(-2deg);white-space:nowrap;position:relative;z-index:1
+}
+
+/* ── ZONE GRID ── */
+.zones{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.zones{grid-template-columns:1fr}}
+
+/* Zone card */
+.zone{
+  --c:var(--mango);--cd:var(--mango-d);--cs:var(--mango-s);
+  background:var(--paper);border:1.5px solid var(--line);
+  border-radius:var(--r);padding:20px 18px 18px;
+  cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:var(--sh);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .18s;
+  min-height:200px;display:flex;flex-direction:column;gap:0;
+  -webkit-user-select:none;user-select:none;
+}
+.zone::after{content:'';position:absolute;inset:auto -20% -40% -20%;height:60%;background:radial-gradient(ellipse at center top,var(--cs),transparent 65%);pointer-events:none;z-index:0}
+@media(hover:hover){
+  .zone:hover{transform:translateY(-5px) rotate(-.3deg);box-shadow:var(--sh-lg);border-color:var(--c)}
+  .zone:hover .agent-bubble{opacity:1;transform:translateY(0)}
+  .zone:hover .zone-arrow{opacity:1}
+  .zone:hover .agent-emoji{transform:rotate(8deg) scale(1.08)}
+}
+.zone:active{transform:scale(.97);box-shadow:var(--sh)}
+
+.zone--mango{--c:var(--mango);--cd:var(--mango-d);--cs:var(--mango-s)}
+.zone--indigo{--c:var(--indigo);--cd:var(--indigo-d);--cs:var(--indigo-s)}
+.zone--nova{--c:var(--nova);--cd:var(--nova-d);--cs:var(--nova-s)}
+.zone--echo{--c:var(--echo);--cd:var(--echo-d);--cs:var(--echo-s)}
+
+.zone-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;position:relative;z-index:1}
+.zone-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--cs);color:var(--cd);
+  padding:4px 10px;border-radius:999px;
+  font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase
+}
+.zone-status{font-size:11px;color:var(--ink-3);display:flex;align-items:center;gap:4px}
+.zone-status::before{content:'';width:6px;height:6px;background:#4db86a;border-radius:50%;animation:pulse 2.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.zone-title{font-size:20px;margin:2px 0;position:relative;z-index:1;line-height:1.15}
+.zone-sub{font-size:12px;color:var(--ink-2);margin-bottom:16px;position:relative;z-index:1}
+
+.zone-arrow{
+  position:absolute;top:18px;right:16px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--c);color:#fff;
+  display:grid;place-items:center;
+  opacity:0;transition:opacity .2s;z-index:2;
+  box-shadow:0 2px 0 var(--cd)
+}
+@media(max-width:600px){.zone-arrow{opacity:1}}
+
+.agent-row{display:flex;align-items:center;gap:12px;margin-top:auto;position:relative;z-index:2}
+.agent-emoji{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--cs) 0%,var(--c) 100%);
+  border:2.5px solid var(--cd);
+  display:grid;place-items:center;font-size:28px;
+  flex-shrink:0;
+  box-shadow:0 3px 0 var(--cd),0 6px 16px rgba(42,38,32,.12);
+  transition:transform .3s cubic-bezier(.2,.8,.2,1)
+}
+.agent-name{font-family:'Fraunces',serif;font-size:18px;font-weight:700}
+.agent-role{font-size:11.5px;color:var(--ink-2);margin-top:1px}
+.agent-bubble{
+  position:absolute;right:12px;bottom:72px;
+  background:var(--ink);color:var(--paper);
+  padding:7px 12px;border-radius:12px;font-size:12px;font-weight:500;
+  white-space:nowrap;
+  opacity:0;transform:translateY(6px);
+  transition:all .2s ease;pointer-events:none;
+  box-shadow:var(--sh)
+}
+.agent-bubble::after{content:'';position:absolute;bottom:-5px;right:20px;width:9px;height:9px;background:var(--ink);transform:rotate(45deg)}
+
+/* Deco props */
+.deco{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.sticky{position:absolute;box-shadow:0 2px 7px rgba(42,38,32,.13)}
+.zone--mango .sticky:nth-child(1){width:46px;height:46px;background:#ffd76b;top:14px;right:70px;transform:rotate(-13deg)}
+.zone--mango .sticky:nth-child(2){width:44px;height:44px;background:#ffbfba;top:36px;right:20px;transform:rotate(7deg)}
+.zone--mango .sticky:nth-child(3){width:38px;height:38px;background:#c5e89e;top:84px;right:52px;transform:rotate(-3deg)}
+.swatch{position:absolute;width:18px;height:44px;border-radius:3px;box-shadow:0 2px 5px rgba(42,38,32,.12)}
+.zone--indigo .swatch:nth-child(1){top:16px;right:96px;background:#e8a3b3;transform:rotate(-5deg)}
+.zone--indigo .swatch:nth-child(2){top:16px;right:74px;background:#c8aaec;transform:rotate(2deg)}
+.zone--indigo .swatch:nth-child(3){top:16px;right:52px;background:#a8caea;transform:rotate(-3deg)}
+.zone--indigo .swatch:nth-child(4){top:16px;right:30px;background:#f5d08e;transform:rotate(5deg)}
+.slide{position:absolute;background:#fff;border:1.5px solid var(--nova-d);border-radius:3px;box-shadow:0 2px 5px rgba(42,38,32,.09)}
+.zone--nova .slide:nth-child(1){width:66px;height:42px;top:18px;right:20px;transform:rotate(-3deg)}
+.zone--nova .slide:nth-child(2){width:66px;height:42px;top:26px;right:30px;transform:rotate(4deg);background:#f6fbff}
+.zone--nova .slide:nth-child(3){width:66px;height:42px;top:34px;right:16px;transform:rotate(-1deg);background:#eaf4fd}
+.monitor{position:absolute;width:34px;height:24px;background:#2a2620;border-radius:3px;border:2px solid var(--echo-d)}
+.monitor::after{content:'';position:absolute;inset:3px;background:linear-gradient(135deg,#4db86a 50%,transparent 50%);border-radius:1px;opacity:.9}
+.zone--echo .monitor:nth-child(1){top:20px;right:90px;transform:rotate(-4deg)}
+.zone--echo .monitor:nth-child(2){top:20px;right:50px;transform:rotate(2deg)}
+.zone--echo .monitor:nth-child(3){top:20px;right:14px;transform:rotate(-1deg)}
+
+/* Pantry */
+.pantry{
+  margin-top:14px;background:var(--paper);border:1px dashed var(--line);
+  border-radius:14px;padding:14px 18px;
+  display:flex;align-items:center;gap:12px;
+  color:var(--ink-2);font-size:13px
+}
+
+/* ════════════════════════════════════
+   SCRIM + DRAWER (desktop = right slide)
+   ════════════════════════════════════ */
+.scrim{
+  position:fixed;inset:0;background:rgba(42,38,32,.45);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s ease;z-index:99
+}
+.scrim.on{opacity:1;pointer-events:auto}
+
+/* DESKTOP DRAWER — slides from right */
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;
+  width:min(600px,100%);
+  background:var(--paper);z-index:100;
+  transform:translateX(102%);
+  transition:transform .32s cubic-bezier(.2,.8,.2,1);
+  display:flex;flex-direction:column;
+  box-shadow:-16px 0 50px rgba(42,38,32,.18)
+}
+.drawer.on{transform:translateX(0)}
+
+/* MOBILE DRAWER — slides from bottom */
+@media(max-width:600px){
+  .drawer{
+    top:auto;left:0;right:0;bottom:0;
+    width:100%;
+    height:92dvh;
+    border-radius:20px 20px 0 0;
+    transform:translateY(102%);
+    box-shadow:0 -12px 50px rgba(42,38,32,.20)
+  }
+  .drawer.on{transform:translateY(0)}
+  /* drag handle */
+  .drawer-handle{
+    width:38px;height:4px;background:var(--line);
+    border-radius:999px;margin:10px auto 0;flex-shrink:0
+  }
+}
+
+/* hide handle on desktop */
+.drawer-handle{display:none}
+@media(max-width:600px){.drawer-handle{display:block}}
+
+.drawer-head{
+  --c:var(--mango);--cd:var(--mango-d);--cs:var(--mango-s);
+  padding:18px 20px 16px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(135deg,var(--cs) 0%,transparent 70%);
+  position:relative;flex-shrink:0
+}
+.drawer-close{
+  position:absolute;top:16px;right:16px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--paper);border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--ink);
+  transition:all .18s;z-index:1
+}
+.drawer-close:hover{background:var(--ink);color:var(--paper)}
+.drawer-head-row{display:flex;align-items:center;gap:12px;padding-right:44px}
+.dh-avatar{
+  width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,var(--cs),var(--c));
+  border:2.5px solid var(--cd);
+  display:grid;place-items:center;font-size:24px;
+  flex-shrink:0;box-shadow:0 3px 0 var(--cd)
+}
+.dh-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;line-height:1.15}
+.dh-role{font-size:12px;color:var(--ink-2);margin-top:2px}
+.dh-greet{
+  margin-top:10px;font-family:'Caveat',cursive;
+  font-size:17px;color:var(--cd);line-height:1.3
+}
+
+.drawer-body{flex:1;overflow-y:auto;padding:18px 20px 24px;-webkit-overflow-scrolling:touch}
+.drawer-body::-webkit-scrollbar{width:6px}
+.drawer-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px}
+
+/* Form fields */
+.field{margin-bottom:14px}
+.field-label{display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:5px;letter-spacing:.01em}
+.field-label .req{color:var(--mango-d)}
+.field-hint{display:block;font-size:11.5px;color:var(--ink-2);margin-bottom:5px}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--paper);
+  border:1.5px solid var(--line);border-radius:10px;
+  padding:10px 13px;font:inherit;font-size:14px;color:var(--ink);
+  transition:border-color .15s,box-shadow .15s;
+  -webkit-appearance:none;appearance:none
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:var(--c,var(--mango));
+  box-shadow:0 0 0 3px var(--cs,var(--mango-s))
+}
+.field textarea{min-height:80px;resize:vertical;font-family:inherit}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23847868' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:400px){.field-row{grid-template-columns:1fr}}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0}
+.chip{
+  border:1.5px solid var(--line);background:var(--paper);
+  padding:7px 12px;border-radius:999px;
+  font-size:12.5px;font-weight:500;color:var(--ink);
+  cursor:pointer;transition:all .15s;user-select:none;
+  min-height:36px;display:inline-flex;align-items:center
+}
+.chip:hover{border-color:var(--ink-2)}
+.chip.on{background:var(--c,var(--mango));color:#fff;border-color:var(--cd,var(--mango-d))}
+
+/* Drawer footer */
+.drawer-foot{
+  border-top:1px solid var(--line);padding:12px 16px;
+  background:var(--paper);display:flex;gap:8px;align-items:center;
+  flex-shrink:0;
+  padding-bottom:max(12px, env(safe-area-inset-bottom))
+}
+.btn{
+  border:0;border-radius:11px;padding:11px 16px;
+  font:inherit;font-size:13.5px;font-weight:700;
+  cursor:pointer;transition:all .18s;
+  display:inline-flex;align-items:center;gap:7px
+}
+.btn-primary{
+  background:var(--ink);color:var(--paper);
+  box-shadow:0 3px 0 #1a1612;flex:1
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 0 #1a1612,0 8px 18px rgba(0,0,0,.14)}
+.btn-primary:active{transform:translateY(1px);box-shadow:0 1px 0 #1a1612}
+.btn-ghost{background:0;color:var(--ink-2);border:1.5px solid var(--line);padding:11px 14px}
+.btn-ghost:hover{color:var(--ink);border-color:var(--ink)}
+
+/* Output area */
+.output{
+  margin-top:18px;
+  background:linear-gradient(180deg,var(--cs,var(--mango-s)) 0%,var(--paper) 100%);
+  border:1px solid var(--line);border-radius:13px;
+  padding:14px 16px;display:none
+}
+.output.on{display:block;animation:rise .28s ease}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.out-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.out-label{font-size:11px;font-weight:700;color:var(--cd,var(--mango-d));letter-spacing:.06em;text-transform:uppercase}
+.out-pre{
+  font-family:'Fraunces',Georgia,serif;font-size:13px;line-height:1.55;
+  color:var(--ink);background:var(--paper);border-radius:9px;
+  padding:12px 14px;border:1px solid var(--line);
+  white-space:pre-wrap;word-wrap:break-word;
+  max-height:280px;overflow-y:auto
+}
+
+/* Action buttons */
+.action-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.action-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  border:1.5px solid var(--line);background:var(--paper);
+  border-radius:999px;padding:7px 14px;
+  font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);
+  cursor:pointer;transition:all .15s;white-space:nowrap
+}
+.action-btn:hover{border-color:var(--ink);transform:translateY(-1px)}
+.action-btn:active{transform:scale(.97)}
+.action-btn.copied{background:#4db86a;color:#fff;border-color:#4db86a}
+.action-btn.gemini{border-color:#4285f4;color:#4285f4}
+.action-btn.gemini:hover{background:#4285f4;color:#fff}
+.action-btn.chatgpt{border-color:#10a37f;color:#10a37f}
+.action-btn.chatgpt:hover{background:#10a37f;color:#fff}
+
+/* Handoff */
+.handoff{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--ink-2)}
+.hoff-btn{
+  border:1.5px dashed var(--line);background:0;
+  padding:5px 11px;border-radius:999px;
+  font:inherit;font-size:12px;font-weight:600;color:var(--ink);
+  cursor:pointer;transition:all .15s
+}
+.hoff-btn:hover{border-style:solid;border-color:var(--ink)}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:var(--paper);
+  padding:9px 18px;border-radius:999px;
+  font-size:13px;font-weight:600;
+  opacity:0;pointer-events:none;
+  transition:all .22s ease;z-index:200;
+  box-shadow:var(--sh-lg);white-space:nowrap
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Mobile: enlarge tap targets inside cards */
+@media(max-width:600px){
+  .office{padding:16px 12px 60px}
+  .reception{flex-wrap:wrap;gap:10px}
+  .rec-badge{transform:none;font-size:14px}
+  .zone{min-height:170px;padding:16px 14px 14px}
+  .zone-title{font-size:18px}
+  .agent-emoji{width:50px;height:50px;font-size:24px}
+  .agent-name{font-size:16px}
+  .topbar{padding:12px 14px}
+  .brand-name{font-size:15px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">S</div>
+    <div>
+      <div class="brand-name" data-en="Skill Office" data-th="Skill Office">Skill Office</div>
+      <div class="brand-sub" data-en="AI creative workplace" data-th="ทีม AI ครีเอทีฟ">AI creative workplace</div>
+    </div>
+  </div>
+  <div class="lang-toggle">
+    <button class="on" data-lang="en">EN</button>
+    <button data-lang="th">TH</button>
+  </div>
+</header>
+
+<main class="office">
+
+  <!-- Reception -->
+  <div class="reception">
+    <div class="rec-avatar">🛎️</div>
+    <div class="rec-text">
+      <div class="rec-title" data-en="Hi! Need help today?" data-th="สวัสดี! วันนี้อยากให้ช่วยอะไร?">Hi! Need help today?</div>
+      <div class="rec-sub" data-en="Choose an agent below → fill in the form → copy your prompt to Gemini or ChatGPT." data-th="เลือก Agent → กรอกฟอร์ม → คัดลอกพรอมต์ไปใช้ใน Gemini หรือ ChatGPT">Choose an agent below → fill in the form → copy your prompt to Gemini or ChatGPT.</div>
+    </div>
+    <div class="rec-badge" data-en="4 agents ✦" data-th="พร้อมงาน 4 คน ✦">4 agents ✦</div>
+  </div>
+
+  <!-- Zones -->
+  <div class="zones">
+
+    <article class="zone zone--mango" data-agent="mango">
+      <div class="deco"><div class="sticky"></div><div class="sticky"></div><div class="sticky"></div></div>
+      <div class="zone-head">
+        <span class="zone-chip"><span>💡</span><span data-en="Brainstorm Corner" data-th="มุมระดมสมอง">Brainstorm Corner</span></span>
+        <span class="zone-status" data-en="Online" data-th="พร้อม">Online</span>
+      </div>
+      <h3 class="zone-title" data-en="Spark fresh ideas" data-th="จุดประกายไอเดียใหม่">Spark fresh ideas</h3>
+      <p class="zone-sub" data-en="Campaign concepts, hooks, content pillars." data-th="คอนเซ็ปต์แคมเปญ ฮุก คอนเทนต์พิลลาร์">Campaign concepts, hooks, content pillars.</p>
+      <div class="agent-row">
+        <div class="agent-emoji">🥭</div>
+        <div><div class="agent-name">Mango</div><div class="agent-role" data-en="Creative Strategist" data-th="นักวางกลยุทธ์">Creative Strategist</div></div>
+        <div class="agent-bubble" data-en="Got an idea spark?" data-th="มีไอเดียอะไรในใจไหม?">Got an idea spark?</div>
+      </div>
+      <div class="zone-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+    </article>
+
+    <article class="zone zone--indigo" data-agent="indigo">
+      <div class="deco"><div class="swatch"></div><div class="swatch"></div><div class="swatch"></div><div class="swatch"></div></div>
+      <div class="zone-head">
+        <span class="zone-chip"><span>🎨</span><span data-en="Design Briefing" data-th="ห้องบรีฟดีไซน์">Design Briefing</span></span>
+        <span class="zone-status" data-en="Online" data-th="พร้อม">Online</span>
+      </div>
+      <h3 class="zone-title" data-en="Brief designers clearly" data-th="บรีฟงานดีไซน์ให้ชัด">Brief designers clearly</h3>
+      <p class="zone-sub" data-en="Mood, formats, specs — one tidy brief." data-th="มู้ด ฟอร์แมต สเปก รวมในไฟล์เดียว">Mood, formats, specs — one tidy brief.</p>
+      <div class="agent-row">
+        <div class="agent-emoji">📋</div>
+        <div><div class="agent-name">Indigo</div><div class="agent-role" data-en="Creative Producer" data-th="โปรดิวเซอร์ครีเอทีฟ">Creative Producer</div></div>
+        <div class="agent-bubble" data-en="Let's get the brief watertight." data-th="มาทำบรีฟให้แน่นกัน">Let's get the brief watertight.</div>
+      </div>
+      <div class="zone-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+    </article>
+
+    <article class="zone zone--nova" data-agent="nova">
+      <div class="deco"><div class="slide"></div><div class="slide"></div><div class="slide"></div></div>
+      <div class="zone-head">
+        <span class="zone-chip"><span>📊</span><span data-en="Presentation Studio" data-th="สตูดิโอพรีเซ้นต์">Presentation Studio</span></span>
+        <span class="zone-status" data-en="Online" data-th="พร้อม">Online</span>
+      </div>
+      <h3 class="zone-title" data-en="Build the pitch deck" data-th="สร้างสไลด์พิตช์">Build the pitch deck</h3>
+      <p class="zone-sub" data-en="Slide-by-slide structure with speaker notes." data-th="โครงสไลด์ + speaker note พร้อมส่ง">Slide-by-slide structure with speaker notes.</p>
+      <div class="agent-row">
+        <div class="agent-emoji">🎯</div>
+        <div><div class="agent-name">Nova</div><div class="agent-role" data-en="Deck Architect" data-th="สถาปนิกพรีเซนเทชัน">Deck Architect</div></div>
+        <div class="agent-bubble" data-en="What story are we telling?" data-th="เรื่องราวที่อยากเล่าคืออะไร?">What story are we telling?</div>
+      </div>
+      <div class="zone-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+    </article>
+
+    <article class="zone zone--echo" data-agent="echo">
+      <div class="deco"><div class="monitor"></div><div class="monitor"></div><div class="monitor"></div></div>
+      <div class="zone-head">
+        <span class="zone-chip"><span>📣</span><span data-en="Listening Hub" data-th="ฮับฟังเสียงชุมชน">Listening Hub</span></span>
+        <span class="zone-status" data-en="Online" data-th="พร้อม">Online</span>
+      </div>
+      <h3 class="zone-title" data-en="Read the community" data-th="อ่านเสียงคอมมูนิตี้">Read the community</h3>
+      <p class="zone-sub" data-en="Sentiment, themes & recommended actions." data-th="เซนติเมนต์ ธีม และแอ็กชันถัดไป">Sentiment, themes & recommended actions.</p>
+      <div class="agent-row">
+        <div class="agent-emoji">🎧</div>
+        <div><div class="agent-name">Echo</div><div class="agent-role" data-en="Insight Analyst" data-th="นักวิเคราะห์อินไซต์">Insight Analyst</div></div>
+        <div class="agent-bubble" data-en="Drop the comments — I'll listen." data-th="ส่งคอมเมนต์มาเลย">Drop the comments — I'll listen.</div>
+      </div>
+      <div class="zone-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+    </article>
+
+  </div>
+
+  <div class="pantry">
+    <span style="font-size:20px">☕</span>
+    <span><strong data-en="The Pantry" data-th="แพนทรี">The Pantry</strong><span data-en=" — saved prompts library. Coming soon." data-th=" — คลังพรอมต์. เร็วๆ นี้"> — saved prompts library. Coming soon.</span></span>
+  </div>
+
+</main>
+
+<!-- SCRIM + DRAWER -->
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="drawer">
+  <div class="drawer-handle"></div>
+  <header class="drawer-head" id="dHead">
+    <div class="drawer-head-row">
+      <div class="dh-avatar" id="dAvatar">🥭</div>
+      <div>
+        <div class="dh-title" id="dTitle">Mango</div>
+        <div class="dh-role" id="dRole">Creative Strategist</div>
+      </div>
+    </div>
+    <div class="dh-greet" id="dGreet">Got an idea spark?</div>
+    <button class="drawer-close" id="dClose">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </header>
+  <div class="drawer-body" id="dBody"></div>
+  <footer class="drawer-foot">
+    <button class="btn btn-primary" id="genBtn">✨ <span data-en="Generate Prompt" data-th="สร้างพรอมต์">Generate Prompt</span></button>
+    <button class="btn btn-ghost" id="resetBtn" data-en="Reset" data-th="ล้าง">Reset</button>
+  </footer>
+</aside>
+
+<div class="toast" id="toast">Copied ✓</div>
+
+<script>
+/* ── CONFIG ── */
+const LANG = { cur: 'en' };
+const STATE = {};
+let CUR = null;
+
+const AGENTS = {
+  mango: {
+    emoji:'🥭', color:'mango',
+    role:{en:'Creative Strategist',th:'นักวางกลยุทธ์ครีเอทีฟ'},
+    greet:{en:"Got an idea spark? Let's pop a few angles open.",th:'มีอะไรอยากระดมไหม? เดี๋ยวจัดให้หลายแบบ'},
+    fields:[
+      {id:'product',label:{en:'Brand / product',th:'แบรนด์ / สินค้า'},type:'text',ph:{en:'e.g. oat milk brand',th:'เช่น แบรนด์โอ๊ตมิลค์'},req:true},
+      {id:'objective',label:{en:'Campaign objective',th:'วัตถุประสงค์'},type:'select',opts:[
+        {v:'awareness',en:'Awareness',th:'สร้างการรับรู้'},
+        {v:'conversion',en:'Conversion',th:'กระตุ้นยอดขาย'},
+        {v:'retention',en:'Retention',th:'รักษาฐานลูกค้า'},
+        {v:'launch',en:'New launch',th:'เปิดตัวสินค้าใหม่'},
+      ]},
+      {id:'audience',label:{en:'Target audience',th:'กลุ่มเป้าหมาย'},type:'text',ph:{en:'Gen Z office workers, Bangkok',th:'Gen Z พนักงานออฟฟิศ กรุงเทพฯ'},req:true},
+      {id:'channels',label:{en:'Channels',th:'ช่องทาง'},type:'chips',opts:['TikTok','IG Reels','IG Feed','Facebook','LINE OA','YouTube','OOH']},
+      {id:'tone',label:{en:'Tone',th:'โทน'},type:'text',ph:{en:'playful, slightly cheeky',th:'สนุก แอบกวน'}},
+      {id:'period',label:{en:'Campaign period',th:'ระยะเวลา'},type:'text',ph:{en:'June – July 2026',th:'มิ.ย. – ก.ค. 2026'}},
+      {id:'budget',label:{en:'Budget',th:'งบ'},type:'chips',single:true,opts:[{v:'Low',en:'Low ต่ำ',th:'ต่ำ'},{v:'Mid',en:'Mid กลาง',th:'กลาง'},{v:'High',en:'High สูง',th:'สูง'}]},
+      {id:'language',label:{en:'Output language',th:'ภาษาผลลัพธ์'},type:'chips',single:true,opts:[{v:'TH',en:'Thai',th:'ไทย'},{v:'EN',en:'English',th:'อังกฤษ'},{v:'Bilingual',en:'Bilingual',th:'สองภาษา'}]},
+      {id:'count',label:{en:'Number of ideas',th:'จำนวนไอเดีย'},type:'number',val:8},
+    ],
+    handoff:['indigo','nova'],
+    tpl:(v)=>`You are Mango, a creative marketing strategist.
+
+Generate ${v.count||8} campaign ideas for:
+- Brand / product: ${v.product||'[fill in]'}
+- Objective: ${v.objective||'[fill in]'}
+- Target audience: ${v.audience||'[fill in]'}
+- Channels: ${v.channels||'[fill in]'}
+- Tone: ${v.tone||'[fill in]'}
+- Period: ${v.period||'[fill in]'}
+- Budget: ${v.budget||'[fill in]'}
+- Output language: ${v.language||'Bilingual'}
+
+For each idea provide:
+1. Campaign name (TH + EN)
+2. Big idea / hook (1 sentence)
+3. Why it works for this audience
+4. 3 content pillar suggestions
+5. Best-fit channel format
+6. Risk note
+
+End with: top 3 recommended ideas + reasoning.`
+  },
+  indigo: {
+    emoji:'📋', color:'indigo',
+    role:{en:'Creative Producer',th:'โปรดิวเซอร์ครีเอทีฟ'},
+    greet:{en:"Let's get the brief watertight before designers touch it.",th:'มาทำบรีฟให้แน่นก่อนส่งดีไซน์เนอร์กัน'},
+    fields:[
+      {id:'campaign',label:{en:'Campaign name',th:'ชื่อแคมเปญ'},type:'text',ph:{en:'Summer Splash 2026',th:'Summer Splash 2026'},req:true},
+      {id:'objective',label:{en:'Objective',th:'วัตถุประสงค์'},type:'text',ph:{en:'drive trial of new SPF range',th:'กระตุ้นทดลองใช้ครีมกันแดดใหม่'}},
+      {id:'audience',label:{en:'Audience',th:'กลุ่มเป้าหมาย'},type:'text',ph:{en:'women 22–35, beauty-conscious',th:'ผู้หญิง 22–35 รักสวยรักผิว'}},
+      {id:'message',label:{en:'Key message',th:'คีย์เมสเซจ'},type:'textarea',ph:{en:'Bright, beachy, breezy.',th:'สดใส ฉ่ำหน้าร้อน ผ่อนคลาย'}},
+      {id:'mood',label:{en:'Visual direction / mood',th:'ทิศทางภาพ / มู้ด'},type:'textarea',ph:{en:'editorial, sun-drenched, pastel beach palette',th:'editorial, แดดอุ่น, สีพาสเทลทะเล'}},
+      {id:'formats',label:{en:'Required formats',th:'ฟอร์แมตที่ต้องการ'},type:'chips',opts:['IG 1:1','IG Story 9:16','TikTok 9:16','KV / hero','FB cover','LINE OA banner','Web banner']},
+      {id:'deadline',label:{en:'Deadline',th:'เดดไลน์'},type:'text',ph:{en:'20 May 2026',th:'20 พ.ค. 2026'}},
+      {id:'assets',label:{en:'Required assets',th:'แอสเสตที่ต้องใช้'},type:'textarea',ph:{en:'logo, 3 product shots, talent',th:'โลโก้, ภาพสินค้า 3 มุม, talent'}},
+    ],
+    handoff:['mango','nova'],
+    tpl:(v)=>`You are Indigo, a creative producer writing a designer-ready brief.
+
+Build a complete design brief:
+- Campaign: ${v.campaign||'[fill in]'}
+- Objective: ${v.objective||'[fill in]'}
+- Audience: ${v.audience||'[fill in]'}
+- Key message: ${v.message||'[fill in]'}
+- Visual direction: ${v.mood||'[fill in]'}
+- Required formats: ${v.formats||'[fill in]'}
+- Deadline: ${v.deadline||'[fill in]'}
+- Assets needed: ${v.assets||'[fill in]'}
+
+Format as a scannable brief with sections:
+1. Project header + deadline
+2. Objective & success metric
+3. Audience snapshot
+4. Key message (TH/EN)
+5. Visual direction + mood board placeholders
+6. Format & specs table (dimensions, file types, safe zones)
+7. Brand mandatories
+8. Tone do / don't list
+9. Asset checklist
+10. Timeline & approval workflow`
+  },
+  nova: {
+    emoji:'🎯', color:'nova',
+    role:{en:'Deck Architect',th:'สถาปนิกพรีเซนเทชัน'},
+    greet:{en:"What's the story we're telling? Let's structure it slide-by-slide.",th:'อยากเล่าเรื่องไหน? เดี๋ยวจัดโครงทีละสไลด์'},
+    fields:[
+      {id:'topic',label:{en:'Presentation topic',th:'หัวข้อพรีเซนต์'},type:'text',ph:{en:'Q3 influencer campaign proposal',th:'ข้อเสนอแคมเปญ KOL Q3'},req:true},
+      {id:'audience',label:{en:'Audience',th:'ผู้ฟัง'},type:'chips',single:true,opts:[{v:'Internal team',en:'Internal team',th:'ทีมภายใน'},{v:'Client',en:'Client',th:'ลูกค้า'},{v:'Executive',en:'Executive',th:'ผู้บริหาร'},{v:'Public',en:'Public',th:'สาธารณะ'}]},
+      {id:'objective',label:{en:'Deck objective',th:'วัตถุประสงค์'},type:'chips',single:true,opts:[{v:'Persuade',en:'Persuade',th:'โน้มน้าว'},{v:'Inform',en:'Inform',th:'ให้ข้อมูล'},{v:'Sell',en:'Sell / pitch',th:'พิตช์ขาย'},{v:'Align',en:'Align',th:'สร้างความเข้าใจร่วม'}]},
+      {id:'slides',label:{en:'Number of slides',th:'จำนวนสไลด์'},type:'number',val:12},
+      {id:'tone',label:{en:'Tone',th:'โทน'},type:'text',ph:{en:'confident, data-led',th:'มั่นใจ ใช้ข้อมูลนำ'}},
+      {id:'points',label:{en:'Key points to cover',th:'ประเด็นสำคัญ'},type:'textarea',ph:{en:'market insight, big idea, KOL list, timeline, budget, KPIs',th:'อินไซต์ตลาด, big idea, KOL, ไทม์ไลน์, งบ, KPI'}},
+      {id:'time',label:{en:'Talk time (min)',th:'เวลาที่ใช้ (นาที)'},type:'number',val:15},
+      {id:'language',label:{en:'Language',th:'ภาษา'},type:'chips',single:true,opts:[{v:'TH',en:'Thai',th:'ไทย'},{v:'EN',en:'English',th:'อังกฤษ'},{v:'EN + TH notes',en:'EN deck + TH speaker notes',th:'สไลด์ EN + notes ไทย'}]},
+    ],
+    handoff:['mango','indigo'],
+    tpl:(v)=>`You are Nova, a deck architect building a Google Slides–ready structure.
+
+Create a ${v.slides||12}-slide presentation:
+- Topic: ${v.topic||'[fill in]'}
+- Audience: ${v.audience||'[fill in]'}
+- Objective: ${v.objective||'[fill in]'}
+- Tone: ${v.tone||'[fill in]'}
+- Key points: ${v.points||'[fill in]'}
+- Talk time: ${v.time||15} minutes
+- Language: ${v.language||'EN'}
+
+For each slide output:
+- Slide # + Title
+- Body content (bullets or short paragraph)
+- Speaker notes (~30–60 sec of script)
+- Visual suggestion (layout, chart type, image idea)
+- Transition cue
+
+Narrative arc: Hook → Context → Insight → Big idea → Plan → Proof → Ask → Q&A
+End with a one-line storyline summary.`
+  },
+  echo: {
+    emoji:'🎧', color:'echo',
+    role:{en:'Insight Analyst',th:'นักวิเคราะห์อินไซต์'},
+    greet:{en:"Drop the comments — I'll listen and surface what matters.",th:'ส่งคอมเมนต์มาเลย เดี๋ยวสรุปประเด็นให้'},
+    fields:[
+      {id:'sources',label:{en:'Source(s)',th:'แหล่งที่มา'},type:'chips',opts:['Facebook','Instagram','TikTok','LINE OA','X/Twitter','Survey','Support tickets']},
+      {id:'context',label:{en:'Campaign / product context',th:'แคมเปญ / สินค้า'},type:'text',ph:{en:'Summer Splash 2026 launch',th:'เปิดตัว Summer Splash 2026'},req:true},
+      {id:'period',label:{en:'Time range',th:'ช่วงเวลา'},type:'text',ph:{en:'April 1–30, 2026',th:'1–30 เม.ย. 2026'}},
+      {id:'languages',label:{en:'Comment language(s)',th:'ภาษาในคอมเมนต์'},type:'chips',opts:['TH','EN','Mixed TH/EN']},
+      {id:'themes',label:{en:'Custom themes to track (optional)',th:'ธีมที่อยากเช็กเป็นพิเศษ'},type:'text',ph:{en:'pricing, scent, packaging',th:'ราคา, กลิ่น, แพ็กเกจ'}},
+      {id:'comments',label:{en:'Raw comments / feedback',th:'คอมเมนต์ดิบ'},hint:{en:'Paste comments here. One per line works best.',th:'วางคอมเมนต์ตรงนี้ คอมเมนต์ละ 1 บรรทัด'},type:'textarea',ph:{en:'Paste comments here…',th:'วางคอมเมนต์ตรงนี้…'},req:true},
+    ],
+    handoff:['mango'],
+    tpl:(v)=>`You are Echo, a community insight analyst.
+
+Analyze the following feedback:
+- Source: ${v.sources||'[fill in]'}
+- Context: ${v.context||'[fill in]'}
+- Time range: ${v.period||'[fill in]'}
+- Language(s): ${v.languages||'[fill in]'}
+- Custom themes: ${v.themes||'none'}
+- Raw comments:
+"""
+${v.comments||'[paste comments here]'}
+"""
+
+Output in this exact structure:
+
+1. SENTIMENT BREAKDOWN
+   Positive: __% (2 sample quotes, original language)
+   Neutral:  __%
+   Negative: __% (2 sample quotes)
+
+2. TOP THEMES (ranked by frequency)
+   Theme — frequency — short description
+
+3. PAIN POINTS (top 5)
+
+4. OPPORTUNITIES (top 5)
+
+5. RISKS / RED FLAGS
+
+6. RECOMMENDED NEXT ACTIONS (3–5, ranked by impact vs. effort)
+
+Tone: neutral and analytical. Preserve original language in quotes.`
+  }
+};
+
+/* ── DOM refs ── */
+const scrim = document.getElementById('scrim');
+const drawer = document.getElementById('drawer');
+const dHead = document.getElementById('dHead');
+const dAvatar = document.getElementById('dAvatar');
+const dTitle = document.getElementById('dTitle');
+const dRole = document.getElementById('dRole');
+const dGreet = document.getElementById('dGreet');
+const dBody = document.getElementById('dBody');
+const genBtn = document.getElementById('genBtn');
+const resetBtn = document.getElementById('resetBtn');
+const toast = document.getElementById('toast');
+
+/* ── Lang ── */
+function applyLang(scope=document){
+  scope.querySelectorAll('[data-en]').forEach(el=>{
+    const v = el.dataset[LANG.cur]; if(v!=null) el.textContent = v;
+  });
+}
+document.querySelectorAll('.lang-toggle button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.lang-toggle button').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    LANG.cur = btn.dataset.lang;
+    applyLang();
+    if(CUR) renderAgent(CUR);
+  });
+});
+
+/* ── Open / Close ── */
+document.querySelectorAll('.zone').forEach(z=>{
+  z.addEventListener('click',()=>open(z.dataset.agent));
+});
+document.getElementById('dClose').addEventListener('click', close);
+scrim.addEventListener('click', close);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') close(); });
+document.addEventListener('keydown',e=>{ if((e.metaKey||e.ctrlKey)&&e.key==='Enter'&&drawer.classList.contains('on')) generate(); });
+
+function open(id){
+  CUR = id;
+  renderAgent(id);
+  drawer.classList.add('on');
+  scrim.classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function close(){
+  drawer.classList.remove('on');
+  scrim.classList.remove('on');
+  document.body.style.overflow='';
+  CUR = null;
+}
+
+/* ── Render agent form ── */
+function renderAgent(id){
+  const a = AGENTS[id];
+  if(!STATE[id]) STATE[id]={};
+  const s = STATE[id];
+
+  dAvatar.textContent = a.emoji;
+  dTitle.textContent = a.name || id.charAt(0).toUpperCase()+id.slice(1);
+  dRole.textContent = a.role[LANG.cur];
+  dGreet.textContent = a.greet[LANG.cur];
+
+  // Apply color vars to drawer
+  ['--c','--cd','--cs'].forEach(v=>drawer.style.removeProperty(v));
+  drawer.style.setProperty('--c',`var(--${a.color})`);
+  drawer.style.setProperty('--cd',`var(--${a.color}-d)`);
+  drawer.style.setProperty('--cs',`var(--${a.color}-s)`);
+  dHead.style.setProperty('--c',`var(--${a.color})`);
+  dHead.style.setProperty('--cd',`var(--${a.color}-d)`);
+  dHead.style.setProperty('--cs',`var(--${a.color}-s)`);
+
+  let html='';
+  a.fields.forEach(f=>{
+    const lbl = f.label[LANG.cur];
+    const ph  = f.ph ? f.ph[LANG.cur]||'' : '';
+    const hint= f.hint? f.hint[LANG.cur]||'' : '';
+    const val = s[f.id]!=null ? s[f.id] : (f.val!=null?f.val:'');
+    html+=`<div class="field">
+      <label class="field-label">${lbl}${f.req?'<span class="req"> *</span>':''}</label>
+      ${hint?`<span class="field-hint">${hint}</span>`:''}`;
+    if(f.type==='text'){
+      html+=`<input type="text" data-fid="${f.id}" placeholder="${esc(ph)}" value="${esc(String(val))}">`;
+    } else if(f.type==='number'){
+      html+=`<input type="number" data-fid="${f.id}" value="${val}" min="1" max="50">`;
+    } else if(f.type==='textarea'){
+      html+=`<textarea data-fid="${f.id}" placeholder="${esc(ph)}">${escH(String(val))}</textarea>`;
+    } else if(f.type==='select'){
+      html+=`<select data-fid="${f.id}"><option value="">—</option>`;
+      f.opts.forEach(o=>{ html+=`<option value="${o.v}"${val===o.v?' selected':''}>${o[LANG.cur]||o.en}</option>`; });
+      html+=`</select>`;
+    } else if(f.type==='chips'){
+      html+=`<div class="chips" data-fid="${f.id}" data-single="${!!f.single}">`;
+      f.opts.forEach(o=>{
+        const v2 = typeof o==='object'?o.v:o;
+        const lb = typeof o==='object'?(o[LANG.cur]||o.en):o;
+        const arr = (val||'').split(', ').filter(Boolean);
+        const isOn = f.single? val===v2 : arr.includes(v2);
+        html+=`<button type="button" class="chip${isOn?' on':''}" data-v="${v2}">${lb}</button>`;
+      });
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+  });
+
+  // Output placeholder
+  html+=`<div class="output" id="output">
+    <div class="out-head">
+      <span class="out-label" data-en="Generated prompt" data-th="พรอมต์ที่สร้าง">Generated prompt</span>
+    </div>
+    <pre class="out-pre" id="outPre"></pre>
+    <div class="action-row" id="actionRow"></div>
+    <div class="handoff" id="handoffRow"></div>
+  </div>`;
+
+  dBody.innerHTML = html;
+
+  // Wire inputs
+  dBody.querySelectorAll('input,textarea,select').forEach(el=>{
+    el.addEventListener('input',()=>{ STATE[CUR][el.dataset.fid]=el.value; });
+  });
+  dBody.querySelectorAll('.chips').forEach(group=>{
+    const fid = group.dataset.fid;
+    const single = group.dataset.single==='true';
+    group.querySelectorAll('.chip').forEach(chip=>{
+      chip.addEventListener('click',()=>{
+        if(single){
+          group.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+          chip.classList.add('on');
+          STATE[CUR][fid]=chip.dataset.v;
+        } else {
+          chip.classList.toggle('on');
+          STATE[CUR][fid]=[...group.querySelectorAll('.chip.on')].map(c=>c.dataset.v).join(', ');
+        }
+      });
+    });
+  });
+
+  applyLang(dBody);
+}
+
+/* ── Generate ── */
+genBtn.addEventListener('click', generate);
+resetBtn.addEventListener('click',()=>{
+  if(!CUR) return;
+  STATE[CUR]={};
+  renderAgent(CUR);
+});
+
+function generate(){
+  if(!CUR) return;
+  const a = AGENTS[CUR];
+  const v = STATE[CUR]||{};
+  const text = a.tpl(v);
+
+  const out = document.getElementById('output');
+  const pre = document.getElementById('outPre');
+  const ar  = document.getElementById('actionRow');
+  const hr  = document.getElementById('handoffRow');
+
+  pre.textContent = text;
+  out.classList.add('on');
+
+  // Action buttons
+  ar.innerHTML = `
+    <button class="action-btn" id="copyBtn">📋 <span data-en="Copy" data-th="คัดลอก">Copy</span></button>
+    <button class="action-btn gemini" id="geminiBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#4285f4"/></svg>
+      <span data-en="Copy & Open Gemini" data-th="คัดลอก + เปิด Gemini">Copy & Open Gemini</span>
+    </button>
+    <button class="action-btn chatgpt" id="chatgptBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#10a37f"/></svg>
+      <span data-en="Copy & Open ChatGPT" data-th="คัดลอก + เปิด ChatGPT">Copy & Open ChatGPT</span>
+    </button>`;
+
+  // Handoff
+  const hLabel = LANG.cur==='th'?'ส่งต่อให้:':'Hand off to:';
+  let hh=`<span>↪ ${hLabel}</span>`;
+  a.handoff.forEach(tid=>{
+    const t=AGENTS[tid];
+    hh+=`<button class="hoff-btn" data-t="${tid}">${t.emoji} ${tid.charAt(0).toUpperCase()+tid.slice(1)}</button>`;
+  });
+  hr.innerHTML=hh;
+
+  applyLang(ar);
+
+  // Wire action buttons
+  document.getElementById('copyBtn').addEventListener('click',()=>copyText(text,'copyBtn'));
+  document.getElementById('geminiBtn').addEventListener('click',()=>{ copyAndOpen(text,'https://gemini.google.com/app'); });
+  document.getElementById('chatgptBtn').addEventListener('click',()=>{ copyAndOpen(text,'https://chat.openai.com/'); });
+  hr.querySelectorAll('.hoff-btn').forEach(b=>b.addEventListener('click',()=>handoff(b.dataset.t)));
+
+  setTimeout(()=>out.scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+
+function copyText(text, btnId){
+  navigator.clipboard.writeText(text).then(()=>{
+    if(btnId){
+      const btn=document.getElementById(btnId);
+      if(btn){ btn.classList.add('copied'); setTimeout(()=>btn.classList.remove('copied'),1800); }
+    }
+    showToast(LANG.cur==='th'?'คัดลอกแล้ว ✓':'Copied to clipboard ✓');
+  }).catch(()=>{
+    // fallback
+    const ta=document.createElement('textarea');
+    ta.value=text; ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast(LANG.cur==='th'?'คัดลอกแล้ว ✓':'Copied ✓');
+  });
+}
+
+function copyAndOpen(text, url){
+  copyText(text, null);
+  setTimeout(()=>window.open(url,'_blank'),150);
+  showToast(LANG.cur==='th'?'คัดลอกแล้ว — กำลังเปิด…':'Copied — opening…');
+}
+
+function handoff(tid){
+  const from = STATE[CUR]||{};
+  if(!STATE[tid]) STATE[tid]={};
+  const to = STATE[tid];
+  ['audience','tone','language','message','objective'].forEach(k=>{ if(from[k]&&!to[k]) to[k]=from[k]; });
+  if(CUR==='mango'&&from.product){
+    if(tid==='indigo'&&!to.campaign) to.campaign=from.product;
+    if(tid==='nova'&&!to.topic) to.topic=`${from.product} campaign proposal`;
+  }
+  if(CUR==='indigo'&&from.campaign&&tid==='nova'&&!to.topic) to.topic=`${from.campaign} pitch`;
+  open(tid);
+  showToast(LANG.cur==='th'?`ส่งต่อไปยัง ${tid} แล้ว ✓`:`Handed off to ${tid.charAt(0).toUpperCase()+tid.slice(1)} ✓`);
+}
+
+function showToast(msg){
+  toast.textContent=msg; toast.classList.add('on');
+  clearTimeout(showToast._t);
+  showToast._t=setTimeout(()=>toast.classList.remove('on'),2200);
+}
+
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escH(s){ return esc(s); }
+
+applyLang();
+</script>
+</body>
+</html>
