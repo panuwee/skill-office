@@ -85,16 +85,17 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 .agent-name{font-family:'Fraunces',serif;font-size:17px;font-weight:700}
 .agent-role{font-size:11.5px;color:var(--ink-2)}
 .zone-arrow{margin-left:auto;width:30px;height:30px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;box-shadow:0 2px 0 var(--cd);transition:opacity .2s;opacity:0}
-.zone:hover .zone-arrow{opacity:1}
+.zone:hover .zone-arrow,.zone-arrow.mob{opacity:1}
 @media(max-width:620px){.zone-arrow{opacity:1}}
 
-/* SCENE */
+/* SCENE — where cat lives */
 .zone-scene{
   position:relative;height:130px;overflow:hidden;
   background:linear-gradient(180deg,transparent 0%,var(--cs) 100%);
   border-top:1px solid var(--line);
   flex-shrink:0;
 }
+/* floor line */
 .zone-scene::after{content:'';position:absolute;bottom:18px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--c) 20%,var(--c) 80%,transparent);opacity:.3}
 
 /* deco props per zone */
@@ -115,41 +116,49 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 .zone--echo  .scene-deco .mn1{top:18px;left:8px;transform:rotate(-3deg)}
 .zone--echo  .scene-deco .mn2{top:14px;left:44px;transform:rotate(2deg)}
 
-/* Cat walker — origin at bottom CENTER so scaleX flip doesn't shift the cat */
-.cat-walker{position:absolute;bottom:18px;will-change:transform;transform-origin:50% 100%}
-
-/* Animations */
+/* Cat walker */
+.cat-walker{position:absolute;bottom:18px;will-change:transform;transform-origin:bottom left}
+/* Leg walk animation */
+@keyframes walk{0%,100%{d:path("M8,0 Q8,8 6,14 Q4,20 5,24")}50%{d:path("M8,0 Q8,8 10,14 Q12,20 11,24")}}
 @keyframes tail-sway{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
 @keyframes body-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-@keyframes legA{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(18deg)}}
-@keyframes legB{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-18deg)}}
-@keyframes blink{0%,92%,100%{transform:scaleY(0)}95%{transform:scaleY(1)}}
-
+@keyframes blink{0%,90%,100%{scaleY:1}95%{scaleY:0.1}}
 .cat-svg .body-group{animation:body-bob .55s ease-in-out infinite}
 .cat-svg .tail{transform-origin:0% 100%;animation:tail-sway 1.2s ease-in-out infinite}
 .cat-svg .leg-a{transform-origin:50% 0;animation:legA .55s ease-in-out infinite}
 .cat-svg .leg-b{transform-origin:50% 0;animation:legB .55s ease-in-out infinite}
+@keyframes legA{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(18deg)}}
+@keyframes legB{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-18deg)}}
+/* Sit pose — CSS only, no re-render */
+.cat-svg.sitting .leg-a,.cat-svg.sitting .leg-b{animation:none;transform:rotate(0deg) !important}
+.cat-svg.sitting .body-group{animation:none;transform:translateY(5px) !important}
+.cat-svg.sitting .tail{animation:none;transform:rotate(-28deg) !important}
+/* Blink */
+.cat-svg .eye-lid{transform-origin:50% 50%;animation:blink 4s ease-in-out infinite}
+.cat-svg.sitting .eye-lid{animation:blink 2s ease-in-out infinite}
 
-/* Sit pose */
-.cat-svg.sitting .leg-a,.cat-svg.sitting .leg-b{animation:none;transform:rotate(0deg)!important}
-.cat-svg.sitting .body-group{animation:none;transform:translateY(5px)!important}
-.cat-svg.sitting .tail{animation:none;transform:rotate(-28deg)!important}
-
-/* Eye blink — transform-box ensures origin is the rect's own bbox in SVG */
-.cat-svg .eye-lid{transform-box:fill-box;transform-origin:50% 50%;transform:scaleY(0);animation:blink 4.5s ease-in-out infinite}
-.cat-svg.sitting .eye-lid{animation:blink 2.2s ease-in-out infinite}
-
-/* Speech bubble */
+/* Speech bubble — anchored to .zone (not .zone-scene), floats above scene */
 .cat-bubble{
   position:absolute;
+  bottom:142px;
+  left:50%;
+  transform:translateX(-50%) translateY(8px);
   background:var(--ink);color:var(--paper);
-  padding:7px 12px;border-radius:12px 12px 12px 3px;
-  font-size:11.5px;font-weight:600;white-space:nowrap;
-  bottom:112px;left:50%;
+  padding:8px 16px;
+  border-radius:999px;
+  font-size:12.5px;font-weight:600;white-space:nowrap;
   opacity:0;pointer-events:none;
-  transition:opacity .2s ease,transform .2s ease;
-  z-index:10;box-shadow:var(--sh);
-  transform:translateX(-50%) translateY(6px);
+  transition:opacity .22s ease,transform .22s ease;
+  z-index:30;
+  box-shadow:0 4px 16px rgba(42,38,32,.22);
+}
+.cat-bubble::after{
+  content:'';position:absolute;
+  bottom:-6px;left:50%;
+  transform:translateX(-50%);
+  border-left:6px solid transparent;
+  border-right:6px solid transparent;
+  border-top:7px solid var(--ink);
 }
 .zone:hover .cat-bubble{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -171,7 +180,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 .drawer-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:var(--paper);border:1px solid var(--line);display:grid;place-items:center;color:var(--ink);transition:all .18s}
 .drawer-close:hover{background:var(--ink);color:var(--paper)}
 .drawer-head-row{display:flex;align-items:center;gap:12px;padding-right:44px}
-.dh-cat{flex-shrink:0;display:grid;place-items:center;width:60px;height:64px}
+.dh-cat{width:56px;height:56px;flex-shrink:0}
 .dh-title{font-family:'Fraunces',serif;font-size:21px;font-weight:700;line-height:1.15}
 .dh-role{font-size:12px;color:var(--ink-2);margin-top:2px}
 .dh-greet{margin-top:10px;font-family:'Caveat',cursive;font-size:17px;color:var(--cd);line-height:1.3}
@@ -181,12 +190,11 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 
 /* Form */
 .field{margin-bottom:14px}
-.field-label{display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:5px;cursor:pointer}
+.field-label{display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:5px}
 .req{color:var(--tyga-d)}
 .field-hint{display:block;font-size:11.5px;color:var(--ink-2);margin-bottom:5px}
 .field input,.field select,.field textarea{width:100%;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:10px 13px;font:inherit;font-size:14px;color:var(--ink);transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--c,var(--tyga));box-shadow:0 0 0 3px var(--cs,var(--tyga-s))}
-.field input.invalid,.field textarea.invalid,.field select.invalid{border-color:var(--tyga-d);box-shadow:0 0 0 3px rgba(217,107,26,.18)}
 .field textarea{min-height:80px;resize:vertical;font-family:inherit}
 .field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23847868' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0}
@@ -224,9 +232,8 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 .hoff-btn:hover{border-style:solid;border-color:var(--ink)}
 
 /* Toast */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .22s ease;z-index:200;box-shadow:var(--sh-lg);white-space:nowrap;max-width:90vw;text-align:center}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .22s ease;z-index:200;box-shadow:var(--sh-lg);white-space:nowrap}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.warn{background:var(--tyga-d)}
 
 @media(max-width:620px){
   .office{padding:16px 12px 60px}
@@ -235,11 +242,6 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
   .topbar{padding:12px 14px}
   .brand-name{font-size:15px}
   .zone-scene{height:110px}
-}
-
-@media(prefers-reduced-motion:reduce){
-  .cat-svg *,.cat-walker{animation:none!important;transition:none!important}
-  .zone-status::before{animation:none}
 }
 </style>
 </head>
@@ -253,9 +255,9 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
       <div class="brand-sub" data-en="AI creative workplace" data-th="ทีม AI ครีเอทีฟ">AI creative workplace</div>
     </div>
   </div>
-  <div class="lang-toggle" role="group" aria-label="Language">
-    <button class="on" data-lang="en" aria-pressed="true">EN</button>
-    <button data-lang="th" aria-pressed="false">TH</button>
+  <div class="lang-toggle">
+    <button class="on" data-lang="en">EN</button>
+    <button data-lang="th">TH</button>
   </div>
 </header>
 
@@ -264,15 +266,16 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
   <div class="reception">
     <div class="rec-avatar">🛎️</div>
     <div class="rec-text">
-      <div class="rec-title" data-en="Tyga & Mello are in! 🐱" data-th="Tyga กับ Mello มาแล้ว! 🐱">Tyga &amp; Mello are in! 🐱</div>
-      <div class="rec-sub" data-en="Pick an agent → fill the form → Copy & Open Gemini or ChatGPT." data-th="เลือก Agent → กรอกฟอร์ม → คัดลอกพรอมต์ไปใน Gemini หรือ ChatGPT">Pick an agent → fill the form → Copy &amp; Open Gemini or ChatGPT.</div>
+      <div class="rec-title" data-en="Tyga & Mello are in! 🐱" data-th="Tyga กับ Mello มาแล้ว! 🐱">Tyga & Mello are in! 🐱</div>
+      <div class="rec-sub" data-en="Pick an agent → fill the form → Copy & Open Gemini or ChatGPT." data-th="เลือก Agent → กรอกฟอร์ม → คัดลอกพรอมต์ไปใน Gemini หรือ ChatGPT">Pick an agent → fill the form → Copy & Open Gemini or ChatGPT.</div>
     </div>
     <div class="rec-badge" data-en="4 agents online ✦" data-th="พร้อมงาน 4 ตัว ✦">4 agents online ✦</div>
   </div>
 
   <div class="zones">
 
-    <article class="zone zone--tyga" data-agent="mango" tabindex="0" role="button" aria-label="Open Tyga, Creative Strategist">
+    <!-- TYGA — Brainstorm -->
+    <article class="zone zone--tyga" data-agent="mango">
       <div class="zone-info">
         <div class="zone-head">
           <span class="zone-chip"><span>💡</span><span data-en="Brainstorm Corner" data-th="มุมระดมสมอง">Brainstorm Corner</span></span>
@@ -288,14 +291,15 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
           <div class="zone-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
         </div>
       </div>
+      <div class="cat-bubble" data-en="Got an idea spark? 🧡" data-th="มีไอเดียไหม? 🧡">Got an idea spark? 🧡</div>
       <div class="zone-scene">
         <div class="scene-deco"><div class="s1"></div><div class="s2"></div><div class="s3"></div></div>
-        <div class="cat-bubble" data-en="Got an idea spark? 🧡" data-th="มีไอเดียไหม? 🧡">Got an idea spark? 🧡</div>
         <div class="cat-walker" id="cat-mango"></div>
       </div>
     </article>
 
-    <article class="zone zone--mello" data-agent="indigo" tabindex="0" role="button" aria-label="Open Mello, Creative Producer">
+    <!-- MELLO — Design Brief -->
+    <article class="zone zone--mello" data-agent="indigo">
       <div class="zone-info">
         <div class="zone-head">
           <span class="zone-chip"><span>🎨</span><span data-en="Design Briefing" data-th="ห้องบรีฟดีไซน์">Design Briefing</span></span>
@@ -311,14 +315,15 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
           <div class="zone-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
         </div>
       </div>
+      <div class="cat-bubble" data-en="Let's nail the brief! 💜" data-th="มาทำบรีฟให้แน่นกัน! 💜">Let's nail the brief! 💜</div>
       <div class="zone-scene">
         <div class="scene-deco"><div class="sw sw1"></div><div class="sw sw2"></div><div class="sw sw3"></div><div class="sw sw4"></div></div>
-        <div class="cat-bubble" data-en="Let's nail the brief! 💜" data-th="มาทำบรีฟให้แน่นกัน! 💜">Let's nail the brief! 💜</div>
         <div class="cat-walker" id="cat-indigo"></div>
       </div>
     </article>
 
-    <article class="zone zone--nova" data-agent="nova" tabindex="0" role="button" aria-label="Open Nova, Deck Architect">
+    <!-- NOVA -->
+    <article class="zone zone--nova" data-agent="nova">
       <div class="zone-info">
         <div class="zone-head">
           <span class="zone-chip"><span>📊</span><span data-en="Presentation Studio" data-th="สตูดิโอพรีเซ้นต์">Presentation Studio</span></span>
@@ -334,21 +339,22 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
           <div class="zone-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
         </div>
       </div>
+      <div class="cat-bubble" data-en="What's the story? 💙" data-th="เรื่องราวที่อยากเล่า? 💙">What's the story? 💙</div>
       <div class="zone-scene">
         <div class="scene-deco"><div class="sl sl1"></div><div class="sl sl2"></div></div>
-        <div class="cat-bubble" data-en="What's the story? 💙" data-th="เรื่องราวที่อยากเล่า? 💙">What's the story? 💙</div>
         <div class="cat-walker" id="cat-nova"></div>
       </div>
     </article>
 
-    <article class="zone zone--echo" data-agent="echo" tabindex="0" role="button" aria-label="Open Echo, Insight Analyst">
+    <!-- ECHO -->
+    <article class="zone zone--echo" data-agent="echo">
       <div class="zone-info">
         <div class="zone-head">
           <span class="zone-chip"><span>📣</span><span data-en="Listening Hub" data-th="ฮับฟังเสียงชุมชน">Listening Hub</span></span>
           <span class="zone-status" data-en="Online" data-th="พร้อม">Online</span>
         </div>
         <h3 class="zone-title" data-en="Read the community" data-th="อ่านเสียงคอมมูนิตี้">Read the community</h3>
-        <p class="zone-sub" data-en="Sentiment, themes & next actions." data-th="เซนติเมนต์ ธีม และแอ็กชันถัดไป">Sentiment, themes &amp; next actions.</p>
+        <p class="zone-sub" data-en="Sentiment, themes & next actions." data-th="เซนติเมนต์ ธีม และแอ็กชันถัดไป">Sentiment, themes & next actions.</p>
         <div class="agent-name-row">
           <div>
             <div class="agent-name">Echo</div>
@@ -357,9 +363,9 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
           <div class="zone-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
         </div>
       </div>
+      <div class="cat-bubble" data-en="Drop the comments! 💚" data-th="ส่งคอมเมนต์มาเลย! 💚">Drop the comments! 💚</div>
       <div class="zone-scene">
         <div class="scene-deco"><div class="mn mn1"></div><div class="mn mn2"></div></div>
-        <div class="cat-bubble" data-en="Drop the comments! 💚" data-th="ส่งคอมเมนต์มาเลย! 💚">Drop the comments! 💚</div>
         <div class="cat-walker" id="cat-echo"></div>
       </div>
     </article>
@@ -372,19 +378,20 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
   </div>
 </main>
 
+<!-- SCRIM + DRAWER -->
 <div class="scrim" id="scrim"></div>
-<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+<aside class="drawer" id="drawer">
   <div class="drawer-handle"></div>
   <header class="drawer-head" id="dHead">
     <div class="drawer-head-row">
-      <div id="drawerCatWrap" class="dh-cat" aria-hidden="true"></div>
+      <div id="drawerCatWrap" class="dh-cat"></div>
       <div>
         <div class="dh-title" id="dTitle">Tyga</div>
         <div class="dh-role" id="dRole">Creative Strategist</div>
       </div>
     </div>
     <div class="dh-greet" id="dGreet"></div>
-    <button class="drawer-close" id="dClose" aria-label="Close"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="drawer-close" id="dClose"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </header>
   <div class="drawer-body" id="dBody"></div>
   <footer class="drawer-foot">
@@ -392,42 +399,52 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
     <button class="btn btn-ghost" id="resetBtn" data-en="Reset" data-th="ล้าง">Reset</button>
   </footer>
 </aside>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="toast" id="toast"></div>
 
 <script>
-'use strict';
-
 /* ─────────── CAT SVG TEMPLATES ─────────── */
 
-function catTyga(w, h, sitting){
-  const sa = !!sitting;
-  return `<svg viewBox="0 0 80 ${h}" width="${w}" height="${h}" class="cat-svg${sa?' sitting':''}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+function catTyga(w=80, h=90, sitting=false){
+  // British Shorthair: round head, chubby, short fur, yellow bib
+  const sa = sitting;
+  return `<svg viewBox="0 0 80 ${h}" width="${w}" height="${h}" class="cat-svg${sa?' sitting':''}" xmlns="http://www.w3.org/2000/svg">
+  <!-- Tail -->
   <path class="tail" d="M62,72 Q78,56 74,42 Q70,33 65,38" fill="none" stroke="#e8e2d8" stroke-width="6" stroke-linecap="round"/>
   <path class="tail" d="M62,72 Q78,56 74,42 Q70,33 65,38" fill="none" stroke="#f8f4ee" stroke-width="4" stroke-linecap="round"/>
   <g class="body-group">
+    <!-- Body -->
     <ellipse cx="38" cy="${sa?76:72}" rx="26" ry="${sa?18:20}" fill="#f8f4ee" stroke="#e0d8cc" stroke-width="1.2"/>
+    <!-- Bib yellow -->
     <ellipse cx="38" cy="${sa?82:78}" rx="16" ry="${sa?11:12}" fill="#fffbde" stroke="#ffb14d" stroke-width="1.8"/>
     <text x="38" y="${sa?79:75}" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="5.5" fill="#d96b1a" font-weight="700">BRUNCH</text>
     <text x="38" y="${sa?85:81}" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="4.5" fill="#ff8faa" font-weight="600">BUDDIES</text>
+    <!-- Legs -->
     <g class="leg-a"><rect x="14" y="${sa?80:82}" width="10" height="${sa?8:12}" rx="5" fill="#f0eae0" stroke="#e0d8cc" stroke-width="1"/></g>
     <g class="leg-b"><rect x="27" y="${sa?80:82}" width="10" height="${sa?8:12}" rx="5" fill="#f0eae0" stroke="#e0d8cc" stroke-width="1"/></g>
     <g class="leg-a" style="animation-delay:.27s"><rect x="42" y="${sa?80:82}" width="10" height="${sa?8:12}" rx="5" fill="#f0eae0" stroke="#e0d8cc" stroke-width="1"/></g>
     <g class="leg-b" style="animation-delay:.27s"><rect x="55" y="${sa?80:82}" width="10" height="${sa?8:12}" rx="5" fill="#f0eae0" stroke="#e0d8cc" stroke-width="1"/></g>
+    <!-- Head — round British Shorthair -->
     <circle cx="38" cy="35" r="24" fill="#f8f4ee" stroke="#e0d8cc" stroke-width="1.2"/>
+    <!-- Ears — small rounded -->
     <path d="M20,18 L16,6 L28,17" fill="#f8f4ee" stroke="#e0d8cc" stroke-width="1.2" stroke-linejoin="round"/>
     <path d="M21,17 L18,9 L27,17" fill="#ffd0d8"/>
     <path d="M56,18 L60,6 L48,17" fill="#f8f4ee" stroke="#e0d8cc" stroke-width="1.2" stroke-linejoin="round"/>
     <path d="M55,17 L58,9 L49,17" fill="#ffd0d8"/>
+    <!-- Eyes — blue, round British Shorthair -->
     <circle cx="30" cy="35" r="7" fill="#b8d8f0" stroke="#8ab8d8" stroke-width=".8"/>
     <circle cx="46" cy="35" r="7" fill="#b8d8f0" stroke="#8ab8d8" stroke-width=".8"/>
     <circle cx="30" cy="35" r="4.5" fill="#1a3550"/>
     <circle cx="46" cy="35" r="4.5" fill="#1a3550"/>
-    <rect class="eye-lid" x="23" y="28" width="14" height="14" rx="4" fill="#f8f4ee"/>
-    <rect class="eye-lid" x="39" y="28" width="14" height="14" rx="4" fill="#f8f4ee"/>
+    <!-- Blink lids -->
+    <rect class="eye-lid" x="23" y="28" width="14" height="0" rx="4" fill="#f8f4ee"/>
+    <rect class="eye-lid" x="39" y="28" width="14" height="0" rx="4" fill="#f8f4ee"/>
     <circle cx="31.5" cy="33" r="1.5" fill="white" opacity=".85"/>
     <circle cx="47.5" cy="33" r="1.5" fill="white" opacity=".85"/>
+    <!-- Nose -->
     <path d="M36,43 L38,45 L40,43 Q38,41 36,43Z" fill="#ffb0c0"/>
+    <!-- Mouth -->
     <path d="M35,45 Q38,48.5 41,45" fill="none" stroke="#e8a0b0" stroke-width="1" stroke-linecap="round"/>
+    <!-- Whiskers -->
     <line x1="8" y1="41" x2="28" y2="43" stroke="#d8d0c0" stroke-width=".9"/>
     <line x1="8" y1="44" x2="28" y2="45" stroke="#d8d0c0" stroke-width=".9"/>
     <line x1="48" y1="43" x2="68" y2="41" stroke="#d8d0c0" stroke-width=".9"/>
@@ -436,41 +453,58 @@ function catTyga(w, h, sitting){
 </svg>`;
 }
 
-function catMello(w, h, sitting){
-  const sa = !!sitting;
-  return `<svg viewBox="0 0 84 ${h}" width="${w}" height="${h}" class="cat-svg${sa?' sitting':''}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+function catMello(w=80, h=90, sitting=false){
+  // Ragdoll: fluffier, slightly more pointed face, blue/pink bib
+  const sa = sitting;
+  return `<svg viewBox="0 0 84 ${h}" width="${w}" height="${h}" class="cat-svg${sa?' sitting':''}" xmlns="http://www.w3.org/2000/svg">
+  <!-- Tail fluffy -->
   <path class="tail" d="M65,74 Q82,58 77,43 Q72,33 67,39" fill="none" stroke="#e8e2d8" stroke-width="8" stroke-linecap="round"/>
   <path class="tail" d="M65,74 Q82,58 77,43 Q72,33 67,39" fill="none" stroke="#f8f4ee" stroke-width="5" stroke-linecap="round"/>
   <g class="body-group">
+    <!-- Fluffy body outline -->
+    <ellipse cx="40" cy="${sa?76:72}" rx="28" ry="${sa?20:22}" fill="#f4f0ec" stroke="#e0d8cc" stroke-width="0"/>
+    <!-- Fluffy edge effect -->
     <ellipse cx="40" cy="${sa?76:72}" rx="30" ry="${sa?22:24}" fill="#fdf9f5"/>
     <ellipse cx="40" cy="${sa?76:72}" rx="28" ry="${sa?20:22}" fill="#f8f4ee"/>
+    <!-- Neck ruff -->
     <ellipse cx="40" cy="${sa?60:56}" rx="18" ry="13" fill="#fdf9f5"/>
     <ellipse cx="40" cy="${sa?60:56}" rx="16" ry="11" fill="#f8f4ee" stroke="#e8e0d0" stroke-width=".8"/>
+    <!-- Bib blue/pink like Mello's -->
     <ellipse cx="40" cy="${sa?84:80}" rx="17" ry="${sa?11:13}" fill="#ddeefa" stroke="#9c8cd9" stroke-width="1.8"/>
     <text x="40" y="${sa?79:76}" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="4.5" fill="#5e49b8" font-weight="700">you're my</text>
     <text x="40" y="${sa?85:82}" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="5.5" fill="#2167a8" font-weight="700">cup of tea</text>
+    <!-- Legs -->
     <g class="leg-a"><rect x="15" y="${sa?80:83}" width="11" height="${sa?8:12}" rx="5.5" fill="#f0eae0" stroke="#e0d8cc" stroke-width="1"/></g>
     <g class="leg-b"><rect x="29" y="${sa?80:83}" width="11" height="${sa?8:12}" rx="5.5" fill="#f0eae0" stroke="#e0d8cc" stroke-width="1"/></g>
     <g class="leg-a" style="animation-delay:.27s"><rect x="44" y="${sa?80:83}" width="11" height="${sa?8:12}" rx="5.5" fill="#f0eae0" stroke="#e0d8cc" stroke-width="1"/></g>
     <g class="leg-b" style="animation-delay:.27s"><rect x="58" y="${sa?80:83}" width="11" height="${sa?8:12}" rx="5.5" fill="#f0eae0" stroke="#e0d8cc" stroke-width="1"/></g>
+    <!-- Head — slightly more triangular Ragdoll -->
+    <circle cx="40" cy="34" r="25" fill="#fdf9f5"/>
+    <!-- Fluffy head -->
     <ellipse cx="40" cy="34" rx="26" ry="25" fill="#fdf9f5"/>
     <circle cx="40" cy="34" r="23" fill="#f8f4ee" stroke="#e0d8cc" stroke-width="1"/>
+    <!-- Fluffy cheeks -->
     <circle cx="19" cy="40" r="8" fill="#fdf9f5" opacity=".8"/>
     <circle cx="61" cy="40" r="8" fill="#fdf9f5" opacity=".8"/>
+    <!-- Ears — larger pointed Ragdoll -->
     <path d="M19,17 L13,3 L30,16" fill="#f8f4ee" stroke="#e0d8cc" stroke-width="1.2" stroke-linejoin="round"/>
     <path d="M20,16 L15,6 L28,15" fill="#ffd0d8"/>
     <path d="M61,17 L67,3 L50,16" fill="#f8f4ee" stroke="#e0d8cc" stroke-width="1.2" stroke-linejoin="round"/>
     <path d="M60,16 L65,6 L52,15" fill="#ffd0d8"/>
+    <!-- Eyes — very blue Ragdoll eyes, slightly larger -->
     <circle cx="30" cy="34" r="8" fill="#88c4f0" stroke="#5aa8e6" stroke-width=".8"/>
     <circle cx="50" cy="34" r="8" fill="#88c4f0" stroke="#5aa8e6" stroke-width=".8"/>
     <circle cx="30" cy="34" r="5" fill="#0d2840"/>
     <circle cx="50" cy="34" r="5" fill="#0d2840"/>
-    <rect class="eye-lid" x="22" y="26" width="16" height="16" rx="5" fill="#f8f4ee"/>
-    <rect class="eye-lid" x="42" y="26" width="16" height="16" rx="5" fill="#f8f4ee"/>
+    <rect class="eye-lid" x="22" y="26" width="16" height="0" rx="5" fill="#f8f4ee"/>
+    <rect class="eye-lid" x="42" y="26" width="16" height="0" rx="5" fill="#f8f4ee"/>
     <circle cx="32" cy="31.5" r="2" fill="white" opacity=".9"/>
     <circle cx="52" cy="31.5" r="2" fill="white" opacity=".9"/>
+    <!-- Nose -->
     <path d="M37.5,43 L40,45.5 L42.5,43 Q40,41 37.5,43Z" fill="#ffb0c0"/>
+    <!-- Mouth -->
     <path d="M36,45.5 Q40,49 44,45.5" fill="none" stroke="#e8a0b0" stroke-width="1" stroke-linecap="round"/>
+    <!-- Whiskers longer -->
     <line x1="4" y1="42" x2="27" y2="43.5" stroke="#d8d0c0" stroke-width=".9"/>
     <line x1="4" y1="45.5" x2="27" y2="46" stroke="#d8d0c0" stroke-width=".9"/>
     <line x1="53" y1="43.5" x2="76" y2="42" stroke="#d8d0c0" stroke-width=".9"/>
@@ -479,8 +513,9 @@ function catMello(w, h, sitting){
 </svg>`;
 }
 
-function catNova(w, h){
-  return `<svg viewBox="0 0 76 88" width="${w}" height="${h}" class="cat-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+function catNova(w=76, h=88){
+  // Sleek grey-point cat with blue bib
+  return `<svg viewBox="0 0 76 88" width="${w}" height="${h}" class="cat-svg" xmlns="http://www.w3.org/2000/svg">
   <path class="tail" d="M58,70 Q74,54 70,40 Q66,31 61,37" fill="none" stroke="#e0e8f0" stroke-width="6" stroke-linecap="round"/>
   <path class="tail" d="M58,70 Q74,54 70,40 Q66,31 61,37" fill="none" stroke="#f0f4f8" stroke-width="4" stroke-linecap="round"/>
   <g class="body-group">
@@ -493,6 +528,7 @@ function catNova(w, h){
     <g class="leg-a" style="animation-delay:.27s"><rect x="39" y="83" width="9" height="11" rx="4.5" fill="#e8ecf0" stroke="#d0dce8" stroke-width="1"/></g>
     <g class="leg-b" style="animation-delay:.27s"><rect x="51" y="83" width="9" height="11" rx="4.5" fill="#e8ecf0" stroke="#d0dce8" stroke-width="1"/></g>
     <circle cx="36" cy="34" r="22" fill="#f0f4f8" stroke="#d0dce8" stroke-width="1.2"/>
+    <!-- dark ears -->
     <path d="M18,19 L14,7 L26,18" fill="#c0c8d8" stroke="#b0b8c8" stroke-width="1" stroke-linejoin="round"/>
     <path d="M19,18 L16,10 L25,17" fill="#ffd0d8"/>
     <path d="M54,19 L58,7 L46,18" fill="#c0c8d8" stroke="#b0b8c8" stroke-width="1" stroke-linejoin="round"/>
@@ -501,8 +537,8 @@ function catNova(w, h){
     <circle cx="44" cy="34" r="6.5" fill="#88c8f8" stroke="#60a8e8" stroke-width=".8"/>
     <circle cx="28" cy="34" r="4" fill="#1a3550"/>
     <circle cx="44" cy="34" r="4" fill="#1a3550"/>
-    <rect class="eye-lid" x="21.5" y="27.5" width="13" height="13" rx="4" fill="#f0f4f8"/>
-    <rect class="eye-lid" x="37.5" y="27.5" width="13" height="13" rx="4" fill="#f0f4f8"/>
+    <rect class="eye-lid" x="21.5" y="27.5" width="13" height="0" rx="4" fill="#f0f4f8"/>
+    <rect class="eye-lid" x="37.5" y="27.5" width="13" height="0" rx="4" fill="#f0f4f8"/>
     <circle cx="29.5" cy="32" r="1.4" fill="white" opacity=".85"/>
     <circle cx="45.5" cy="32" r="1.4" fill="white" opacity=".85"/>
     <path d="M34,42 L36,44 L38,42 Q36,40 34,42Z" fill="#ffb0c0"/>
@@ -515,8 +551,9 @@ function catNova(w, h){
 </svg>`;
 }
 
-function catEcho(w, h){
-  return `<svg viewBox="0 0 76 88" width="${w}" height="${h}" class="cat-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+function catEcho(w=76, h=88){
+  // Tabby-ish green-vibe cat with green bib, headphones
+  return `<svg viewBox="0 0 76 88" width="${w}" height="${h}" class="cat-svg" xmlns="http://www.w3.org/2000/svg">
   <path class="tail" d="M58,70 Q74,54 70,40 Q66,31 61,37" fill="none" stroke="#d8ece4" stroke-width="6" stroke-linecap="round"/>
   <path class="tail" d="M58,70 Q74,54 70,40 Q66,31 61,37" fill="none" stroke="#eef8f2" stroke-width="4" stroke-linecap="round"/>
   <g class="body-group">
@@ -533,6 +570,7 @@ function catEcho(w, h){
     <path d="M19,18 L16,10 L25,17" fill="#ffd0d8"/>
     <path d="M54,19 L58,7 L46,18" fill="#a0d8b8" stroke="#88c8a0" stroke-width="1" stroke-linejoin="round"/>
     <path d="M53,18 L56,10 L47,17" fill="#ffd0d8"/>
+    <!-- Headphones arc -->
     <path d="M14,30 Q36,14 58,30" fill="none" stroke="#2a2620" stroke-width="3" stroke-linecap="round"/>
     <rect x="10" y="28" width="8" height="12" rx="4" fill="#2a2620"/>
     <rect x="58" y="28" width="8" height="12" rx="4" fill="#2a2620"/>
@@ -540,8 +578,8 @@ function catEcho(w, h){
     <circle cx="44" cy="35" r="6.5" fill="#80d8a8" stroke="#60c890" stroke-width=".8"/>
     <circle cx="28" cy="35" r="4" fill="#1a3828"/>
     <circle cx="44" cy="35" r="4" fill="#1a3828"/>
-    <rect class="eye-lid" x="21.5" y="28.5" width="13" height="13" rx="4" fill="#f0f8f4"/>
-    <rect class="eye-lid" x="37.5" y="28.5" width="13" height="13" rx="4" fill="#f0f8f4"/>
+    <rect class="eye-lid" x="21.5" y="28.5" width="13" height="0" rx="4" fill="#f0f8f4"/>
+    <rect class="eye-lid" x="37.5" y="28.5" width="13" height="0" rx="4" fill="#f0f8f4"/>
     <circle cx="29.5" cy="33" r="1.4" fill="white" opacity=".85"/>
     <circle cx="45.5" cy="33" r="1.4" fill="white" opacity=".85"/>
     <path d="M34,43 L36,45 L38,43 Q36,41 34,43Z" fill="#ffb0c0"/>
@@ -554,6 +592,7 @@ function catEcho(w, h){
 </svg>`;
 }
 
+/* small cats for drawer header */
 const smallCats = {
   mango: ()=>catTyga(56,62,true),
   indigo:()=>catMello(56,62,true),
@@ -563,91 +602,62 @@ const smallCats = {
 
 /* ─────────── WALKING ANIMATION ─────────── */
 const walkers = {
-  mango:  {x:20, dir:1, speed:0.38, min:8, max:180, el:null},
-  indigo: {x:30, dir:-1,speed:0.32, min:8, max:180, el:null},
-  nova:   {x:40, dir:1, speed:0.42, min:8, max:180, el:null},
-  echo:   {x:50, dir:-1,speed:0.36, min:8, max:180, el:null},
+  mango:  {x:20, dir:1, speed:0.38, min:8,  max:null, el:null},
+  indigo: {x:120,dir:-1,speed:0.32, min:8,  max:null, el:null},
+  nova:   {x:40, dir:1, speed:0.42, min:8,  max:null, el:null},
+  echo:   {x:90, dir:-1,speed:0.36, min:8,  max:null, el:null},
 };
 const catFns = { mango:catTyga, indigo:catMello, nova:catNova, echo:catEcho };
 const catW   = { mango:80, indigo:84, nova:76, echo:76 };
-const paused = new Set();
-const offscreen = new Set();
-
-function recomputeMax(id){
-  const w = walkers[id];
-  if(!w.el) return;
-  const scene = w.el.closest('.zone-scene');
-  if(scene){
-    const m = scene.offsetWidth - catW[id] - 10;
-    w.max = Math.max(w.min + 2, m);
-    if(w.x > w.max) w.x = w.max;
-    if(w.x < w.min) w.x = w.min;
-  }
-}
 
 function setupCats(){
-  for(const id of Object.keys(walkers)){
+  for(const [id, w] of Object.entries(walkers)){
     const el = document.getElementById('cat-'+id);
     if(!el) continue;
-    el.innerHTML = catFns[id](catW[id], 90, false);
-    walkers[id].el = el;
-    recomputeMax(id);
+    el.innerHTML = catFns[id](catW[id]);
+    w.el = el;
+    // compute max from parent width
+    const scene = el.closest('.zone-scene');
+    if(scene) w.max = scene.offsetWidth - catW[id] - 10;
+    else w.max = 180;
   }
 }
 
-let lastTs = 0;
-function animateCats(now){
-  if(!lastTs) lastTs = now;
-  const dt = Math.min((now - lastTs) / 16.67, 3);  // normalize to ~60fps
-  lastTs = now;
-  for(const id of Object.keys(walkers)){
-    const w = walkers[id];
-    if(!w.el || paused.has(id) || offscreen.has(id)) continue;
-    w.x += w.dir * w.speed * dt;
-    if(w.x >= w.max){ w.x = w.max; w.dir = -1; }
-    if(w.x <= w.min){ w.x = w.min; w.dir = 1; }
+let paused = new Set();
+
+function animateCats(){
+  for(const [id, w] of Object.entries(walkers)){
+    if(!w.el || paused.has(id)) continue;
+    w.x += w.dir * w.speed;
+    const scene = w.el.closest('.zone-scene');
+    if(scene) w.max = scene.offsetWidth - catW[id] - 10;
+    if(w.x >= w.max){w.x = w.max; w.dir = -1;}
+    if(w.x <= w.min){w.x = w.min; w.dir = 1;}
+    // scaleX flips cat direction; transform origin bottom center
     w.el.style.transform = `translateX(${w.x}px) scaleX(${w.dir})`;
   }
   requestAnimationFrame(animateCats);
 }
 
-/* Pause walking on hover/focus — toggle CSS class only */
+// Pause walking on hover — toggle CSS class only, NO innerHTML replacement
 document.querySelectorAll('.zone').forEach(zone=>{
   const id = zone.dataset.agent;
-  const sit = ()=>{
+  zone.addEventListener('mouseenter',()=>{
     paused.add(id);
     document.getElementById('cat-'+id)?.querySelector('.cat-svg')?.classList.add('sitting');
-  };
-  const stand = ()=>{
+  });
+  zone.addEventListener('mouseleave',()=>{
     paused.delete(id);
     document.getElementById('cat-'+id)?.querySelector('.cat-svg')?.classList.remove('sitting');
-  };
-  zone.addEventListener('mouseenter', sit);
-  zone.addEventListener('mouseleave', stand);
-  zone.addEventListener('focusin', sit);
-  zone.addEventListener('focusout', stand);
+  });
 });
 
-/* Pause off-screen scenes */
-if('IntersectionObserver' in window){
-  const io = new IntersectionObserver(entries=>{
-    for(const e of entries){
-      const id = e.target.dataset.agent;
-      if(!id) continue;
-      if(e.isIntersecting) offscreen.delete(id);
-      else offscreen.add(id);
-    }
-  }, {threshold:0});
-  document.querySelectorAll('.zone').forEach(z=>io.observe(z));
-}
-
 /* ─────────── AGENTS CONFIG ─────────── */
-const LANG = {cur:'en'};
-const STATE = {};
-let CUR = null;
-let lastFocus = null;
+const LANG={cur:'en'};
+const STATE={};
+let CUR=null;
 
-const AGENTS = {
+const AGENTS={
   mango:{
     name:'Tyga',emoji:'🥭',color:'tyga',
     role:{en:'Creative Strategist',th:'นักวางกลยุทธ์ครีเอทีฟ'},
@@ -803,327 +813,162 @@ Preserve original language in quotes.`
 };
 
 /* ─────────── LANG ─────────── */
-function applyLang(scope){
-  scope = scope || document;
+function applyLang(scope=document){
   scope.querySelectorAll('[data-en]').forEach(el=>{
-    const v = el.dataset[LANG.cur];
-    if(v != null) el.textContent = v;
+    const v=el.dataset[LANG.cur]; if(v!=null) el.textContent=v;
   });
 }
 document.querySelectorAll('.lang-toggle button').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    document.querySelectorAll('.lang-toggle button').forEach(b=>{
-      b.classList.remove('on');
-      b.setAttribute('aria-pressed','false');
-    });
+    document.querySelectorAll('.lang-toggle button').forEach(b=>b.classList.remove('on'));
     btn.classList.add('on');
-    btn.setAttribute('aria-pressed','true');
-    LANG.cur = btn.dataset.lang;
+    LANG.cur=btn.dataset.lang;
     applyLang();
     if(CUR) renderAgent(CUR);
   });
 });
 
-/* ─────────── OPEN/CLOSE DRAWER ─────────── */
-const drawer = document.getElementById('drawer');
-const scrim  = document.getElementById('scrim');
-const dBody  = document.getElementById('dBody');
-
+/* ─────────── OPEN/CLOSE ─────────── */
+const drawer=document.getElementById('drawer');
+const scrim=document.getElementById('scrim');
 document.querySelectorAll('.zone').forEach(z=>{
   z.addEventListener('click',()=>openAgent(z.dataset.agent));
-  z.addEventListener('keydown',e=>{
-    if(e.key === 'Enter' || e.key === ' '){
-      e.preventDefault();
-      openAgent(z.dataset.agent);
-    }
-  });
 });
-document.getElementById('dClose').addEventListener('click', closeDrawer);
-scrim.addEventListener('click', closeDrawer);
-document.addEventListener('keydown', e=>{
-  if(e.key === 'Escape' && drawer.classList.contains('on')) closeDrawer();
-  if((e.metaKey || e.ctrlKey) && e.key === 'Enter' && drawer.classList.contains('on')){
-    e.preventDefault();
-    generate();
-  }
+document.getElementById('dClose').addEventListener('click',closeDrawer);
+scrim.addEventListener('click',closeDrawer);
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeDrawer();
+  if((e.metaKey||e.ctrlKey)&&e.key==='Enter'&&drawer.classList.contains('on')) generate();
 });
 
 function openAgent(id){
-  if(!AGENTS[id]) return;
-  lastFocus = document.activeElement;
-  CUR = id;
+  CUR=id;
   renderAgent(id);
   drawer.classList.add('on');
   scrim.classList.add('on');
-  document.body.style.overflow = 'hidden';
-  // focus first input for accessibility
-  requestAnimationFrame(()=>{
-    const first = dBody.querySelector('input,textarea,select,.chip');
-    if(first && typeof first.focus === 'function') first.focus({preventScroll:true});
-  });
+  document.body.style.overflow='hidden';
 }
-
 function closeDrawer(){
   drawer.classList.remove('on');
   scrim.classList.remove('on');
-  document.body.style.overflow = '';
-  CUR = null;
-  if(lastFocus && typeof lastFocus.focus === 'function'){
-    lastFocus.focus({preventScroll:true});
-  }
+  document.body.style.overflow='';
+  CUR=null;
 }
 
 /* ─────────── RENDER ─────────── */
-function fieldId(agentId, fId){ return `f-${agentId}-${fId}`; }
-
 function renderAgent(id){
-  const a = AGENTS[id];
-  if(!STATE[id]) STATE[id] = {};
-  const s = STATE[id];
+  const a=AGENTS[id];
+  if(!STATE[id]) STATE[id]={};
+  const s=STATE[id];
 
-  document.getElementById('dTitle').textContent = a.name;
-  document.getElementById('dRole').textContent = a.role[LANG.cur];
-  document.getElementById('dGreet').textContent = a.greet[LANG.cur];
+  document.getElementById('dTitle').textContent=a.name;
+  document.getElementById('dRole').textContent=a.role[LANG.cur];
+  document.getElementById('dGreet').textContent=a.greet[LANG.cur];
 
-  const catContainer = document.getElementById('drawerCatWrap');
-  if(catContainer) catContainer.innerHTML = smallCats[id]();
+  // Safe cat injection — target wrapper div, never remove element from DOM
+  const catContainer=document.getElementById('drawerCatWrap');
+  if(catContainer) catContainer.innerHTML=smallCats[id]();
 
-  const dHead = document.getElementById('dHead');
-  dHead.style.setProperty('--c', `var(--${a.color})`);
+  const dHead=document.getElementById('dHead');
+  dHead.style.setProperty('--c',`var(--${a.color})`);
   dHead.style.setProperty('--cd',`var(--${a.color}-d)`);
   dHead.style.setProperty('--cs',`var(--${a.color}-s)`);
-  drawer.style.setProperty('--c', `var(--${a.color})`);
+  drawer.style.setProperty('--c',`var(--${a.color})`);
   drawer.style.setProperty('--cd',`var(--${a.color}-d)`);
   drawer.style.setProperty('--cs',`var(--${a.color}-s)`);
 
-  let html = '';
+  let html='';
   a.fields.forEach(f=>{
-    const lbl  = f.label[LANG.cur];
-    const ph   = f.ph   ? (f.ph[LANG.cur] || '') : '';
-    const hint = f.hint ? (f.hint[LANG.cur] || '') : '';
-    const val  = s[f.id] != null ? s[f.id] : (f.val != null ? f.val : '');
-    const fid  = fieldId(id, f.id);
-    const reqAttr = f.req ? ' aria-required="true"' : '';
-
-    html += `<div class="field">
-      <label class="field-label" for="${fid}">${lbl}${f.req?'<span class="req"> *</span>':''}</label>
-      ${hint?`<span class="field-hint">${hint}</span>`:''}`;
-
-    if(f.type === 'text'){
-      html += `<input type="text" id="${fid}" data-fid="${f.id}" placeholder="${esc(ph)}" value="${esc(String(val))}"${reqAttr}>`;
-    } else if(f.type === 'number'){
-      html += `<input type="number" id="${fid}" data-fid="${f.id}" value="${esc(String(val))}" min="1" max="50"${reqAttr}>`;
-    } else if(f.type === 'textarea'){
-      html += `<textarea id="${fid}" data-fid="${f.id}" placeholder="${esc(ph)}"${reqAttr}>${esc(String(val))}</textarea>`;
-    } else if(f.type === 'select'){
-      html += `<select id="${fid}" data-fid="${f.id}"${reqAttr}><option value="">—</option>`;
-      f.opts.forEach(o=>{
-        html += `<option value="${esc(o.v)}"${val===o.v?' selected':''}>${esc(o[LANG.cur]||o.en)}</option>`;
-      });
-      html += `</select>`;
-    } else if(f.type === 'chips'){
-      html += `<div class="chips" id="${fid}" data-fid="${f.id}" data-single="${f.single?'1':'0'}" role="group" aria-label="${esc(lbl)}">`;
-      f.opts.forEach(o=>{
-        const v2 = typeof o === 'object' ? o.v : o;
-        const lb = typeof o === 'object' ? (o[LANG.cur]||o.en) : o;
-        const arr = String(val||'').split(', ').filter(Boolean);
-        const isOn = f.single ? val === v2 : arr.includes(v2);
-        html += `<button type="button" class="chip${isOn?' on':''}" data-v="${esc(v2)}" aria-pressed="${isOn}">${esc(lb)}</button>`;
-      });
-      html += `</div>`;
-    }
-    html += `</div>`;
+    const lbl=f.label[LANG.cur];
+    const ph=f.ph?f.ph[LANG.cur]||'':'';
+    const hint=f.hint?f.hint[LANG.cur]||'':'';
+    const val=s[f.id]!=null?s[f.id]:(f.val!=null?f.val:'');
+    html+=`<div class="field"><label class="field-label">${lbl}${f.req?'<span class="req"> *</span>':''}</label>${hint?`<span class="field-hint">${hint}</span>`:''}`;
+    if(f.type==='text'){html+=`<input type="text" data-fid="${f.id}" placeholder="${esc(ph)}" value="${esc(String(val))}">`;}
+    else if(f.type==='number'){html+=`<input type="number" data-fid="${f.id}" value="${val}" min="1" max="50">`;}
+    else if(f.type==='textarea'){html+=`<textarea data-fid="${f.id}" placeholder="${esc(ph)}">${escH(String(val))}</textarea>`;}
+    else if(f.type==='select'){html+=`<select data-fid="${f.id}"><option value="">—</option>`;f.opts.forEach(o=>{html+=`<option value="${o.v}"${val===o.v?' selected':''}>${o[LANG.cur]||o.en}</option>`;});html+=`</select>`;}
+    else if(f.type==='chips'){html+=`<div class="chips" data-fid="${f.id}" data-single="${!!f.single}">`;f.opts.forEach(o=>{const v2=typeof o==='object'?o.v:o;const lb=typeof o==='object'?(o[LANG.cur]||o.en):o;const arr=(val||'').split(', ').filter(Boolean);const isOn=f.single?val===v2:arr.includes(v2);html+=`<button type="button" class="chip${isOn?' on':''}" data-v="${v2}">${lb}</button>`;});html+=`</div>`;}
+    html+=`</div>`;
   });
+  html+=`<div class="output" id="output"><div class="out-head"><span class="out-label" data-en="Generated prompt" data-th="พรอมต์ที่สร้าง">Generated prompt</span></div><pre class="out-pre" id="outPre"></pre><div class="action-row" id="actionRow"></div><div class="handoff" id="handoffRow"></div></div>`;
 
-  html += `<div class="output" id="output">
-    <div class="out-head">
-      <span class="out-label" data-en="Generated prompt" data-th="พรอมต์ที่สร้าง">Generated prompt</span>
-    </div>
-    <pre class="out-pre" id="outPre"></pre>
-    <div class="action-row" id="actionRow"></div>
-    <div class="handoff" id="handoffRow"></div>
-  </div>`;
+  const dBody=document.getElementById('dBody');
+  dBody.innerHTML=html;
 
-  dBody.innerHTML = html;
-  dBody.scrollTop = 0;
-
-  dBody.querySelectorAll('input,textarea,select').forEach(el=>{
-    el.addEventListener('input', ()=>{
-      STATE[CUR][el.dataset.fid] = el.value;
-      el.classList.remove('invalid');
-    });
-  });
+  dBody.querySelectorAll('input,textarea,select').forEach(el=>{el.addEventListener('input',()=>{STATE[CUR][el.dataset.fid]=el.value;});});
   dBody.querySelectorAll('.chips').forEach(group=>{
-    const fid = group.dataset.fid;
-    const single = group.dataset.single === '1';
+    const fid=group.dataset.fid;const single=group.dataset.single==='true';
     group.querySelectorAll('.chip').forEach(chip=>{
-      chip.addEventListener('click', ()=>{
-        if(single){
-          group.querySelectorAll('.chip').forEach(c=>{
-            c.classList.remove('on');
-            c.setAttribute('aria-pressed','false');
-          });
-          chip.classList.add('on');
-          chip.setAttribute('aria-pressed','true');
-          STATE[CUR][fid] = chip.dataset.v;
-        } else {
-          chip.classList.toggle('on');
-          chip.setAttribute('aria-pressed', chip.classList.contains('on') ? 'true' : 'false');
-          STATE[CUR][fid] = [...group.querySelectorAll('.chip.on')].map(c=>c.dataset.v).join(', ');
-        }
+      chip.addEventListener('click',()=>{
+        if(single){group.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));chip.classList.add('on');STATE[CUR][fid]=chip.dataset.v;}
+        else{chip.classList.toggle('on');STATE[CUR][fid]=[...group.querySelectorAll('.chip.on')].map(c=>c.dataset.v).join(', ');}
       });
     });
   });
-
   applyLang(dBody);
 }
 
 /* ─────────── GENERATE ─────────── */
-document.getElementById('genBtn').addEventListener('click', generate);
-document.getElementById('resetBtn').addEventListener('click', ()=>{
-  if(!CUR) return;
-  STATE[CUR] = {};
-  renderAgent(CUR);
-});
+document.getElementById('genBtn').addEventListener('click',generate);
+document.getElementById('resetBtn').addEventListener('click',()=>{if(!CUR)return;STATE[CUR]={};renderAgent(CUR);});
 
 function generate(){
-  if(!CUR) return;
-  const a = AGENTS[CUR];
-  const v = STATE[CUR] || {};
-
-  // validate required fields
-  const missing = a.fields.filter(f=>f.req && !String(v[f.id]||'').trim());
-  if(missing.length){
-    const first = missing[0];
-    const labelTxt = first.label[LANG.cur];
-    showToast(LANG.cur==='th' ? `กรอก "${labelTxt}" ก่อนนะ` : `Please fill in "${labelTxt}"`, true);
-    const fid = fieldId(CUR, first.id);
-    const el = document.getElementById(fid);
-    if(el){
-      el.classList.add('invalid');
-      el.scrollIntoView({behavior:'smooth', block:'center'});
-      if(typeof el.focus === 'function') setTimeout(()=>el.focus(),200);
-    }
-    return;
-  }
-
-  const text = a.tpl(v);
-  const out = document.getElementById('output');
-  const pre = document.getElementById('outPre');
-  const ar  = document.getElementById('actionRow');
-  const hr  = document.getElementById('handoffRow');
-
-  pre.textContent = text;
+  if(!CUR)return;
+  const a=AGENTS[CUR];
+  const v=STATE[CUR]||{};
+  const text=a.tpl(v);
+  const out=document.getElementById('output');
+  const pre=document.getElementById('outPre');
+  const ar=document.getElementById('actionRow');
+  const hr=document.getElementById('handoffRow');
+  pre.textContent=text;
   out.classList.add('on');
-
-  ar.innerHTML = `
-    <button class="action-btn" id="copyBtn" type="button">📋 <span data-en="Copy" data-th="คัดลอก">Copy</span></button>
-    <button class="action-btn gemini" id="geminiBtn" type="button">✦ <span data-en="Copy & Open Gemini" data-th="คัดลอก + Gemini">Copy & Open Gemini</span></button>
-    <button class="action-btn chatgpt" id="chatgptBtn" type="button">● <span data-en="Copy & Open ChatGPT" data-th="คัดลอก + ChatGPT">Copy & Open ChatGPT</span></button>`;
-
-  const hLabel = LANG.cur==='th' ? 'ส่งต่อให้:' : 'Hand off to:';
-  let hh = `<span>↪ ${hLabel}</span>`;
-  a.handoff.forEach(tid=>{
-    const t = AGENTS[tid];
-    hh += `<button class="hoff-btn" type="button" data-t="${tid}">${t.name} →</button>`;
-  });
-  hr.innerHTML = hh;
-
+  ar.innerHTML=`<button class="action-btn" id="copyBtn">📋 <span data-en="Copy" data-th="คัดลอก">Copy</span></button><button class="action-btn gemini" id="geminiBtn">✦ <span data-en="Copy & Open Gemini" data-th="คัดลอก + Gemini">Copy & Open Gemini</span></button><button class="action-btn chatgpt" id="chatgptBtn">● <span data-en="Copy & Open ChatGPT" data-th="คัดลอก + ChatGPT">Copy & Open ChatGPT</span></button>`;
+  const hLabel=LANG.cur==='th'?'ส่งต่อให้:':'Hand off to:';
+  let hh=`<span>↪ ${hLabel}</span>`;
+  a.handoff.forEach(tid=>{const t=AGENTS[tid];hh+=`<button class="hoff-btn" data-t="${tid}">${t.name} →</button>`;});
+  hr.innerHTML=hh;
   applyLang(ar);
-
-  document.getElementById('copyBtn').addEventListener('click', ()=>copyText(text,'copyBtn'));
-  document.getElementById('geminiBtn').addEventListener('click', ()=>copyAndOpen(text,'https://gemini.google.com/app'));
-  document.getElementById('chatgptBtn').addEventListener('click', ()=>copyAndOpen(text,'https://chat.openai.com/'));
-  hr.querySelectorAll('.hoff-btn').forEach(b=>b.addEventListener('click', ()=>handoff(b.dataset.t)));
-
-  setTimeout(()=>out.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+  document.getElementById('copyBtn').addEventListener('click',()=>copyText(text,'copyBtn'));
+  document.getElementById('geminiBtn').addEventListener('click',()=>copyAndOpen(text,'https://gemini.google.com/app'));
+  document.getElementById('chatgptBtn').addEventListener('click',()=>copyAndOpen(text,'https://chat.openai.com/'));
+  hr.querySelectorAll('.hoff-btn').forEach(b=>b.addEventListener('click',()=>handoff(b.dataset.t)));
+  setTimeout(()=>out.scrollIntoView({behavior:'smooth',block:'start'}),50);
 }
 
-function copyText(text, btnId){
-  const fallback = ()=>{
-    try{
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      flashCopied(btnId);
-      showToast(LANG.cur==='th'?'คัดลอกแล้ว ✓':'Copied ✓');
-    } catch(_){
-      showToast(LANG.cur==='th'?'คัดลอกไม่สำเร็จ':'Copy failed', true);
-    }
-  };
-  if(navigator.clipboard && navigator.clipboard.writeText){
+function copyText(text,btnId){
+  const doFallback=()=>{const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);};
+  try{
     navigator.clipboard.writeText(text).then(()=>{
-      flashCopied(btnId);
+      if(btnId){const b=document.getElementById(btnId);if(b){b.classList.add('copied');setTimeout(()=>b.classList.remove('copied'),1800);}}
       showToast(LANG.cur==='th'?'คัดลอกแล้ว ✓':'Copied ✓');
-    }).catch(fallback);
-  } else {
-    fallback();
-  }
+    }).catch(doFallback);
+  }catch(e){doFallback();}
 }
-function flashCopied(btnId){
-  if(!btnId) return;
-  const b = document.getElementById(btnId);
-  if(b){
-    b.classList.add('copied');
-    setTimeout(()=>b.classList.remove('copied'), 1800);
-  }
-}
-
-function copyAndOpen(text, url){
-  // Open window FIRST while user gesture is still active to avoid popup blockers
-  const win = window.open(url, '_blank', 'noopener,noreferrer');
-  copyText(text, null);
-  if(!win){
-    showToast(LANG.cur==='th'?'โปรดอนุญาต popup':'Please allow popups', true);
-  }
-}
-
+function copyAndOpen(text,url){copyText(text,null);setTimeout(()=>window.open(url,'_blank'),150);showToast(LANG.cur==='th'?'คัดลอกแล้ว — กำลังเปิด…':'Copied — opening…');}
 function handoff(tid){
-  const from = STATE[CUR] || {};
-  if(!STATE[tid]) STATE[tid] = {};
-  const to = STATE[tid];
-  ['audience','tone','language','message','objective'].forEach(k=>{
-    if(from[k] && !to[k]) to[k] = from[k];
-  });
-  if(CUR === 'mango' && from.product){
-    if(tid === 'indigo' && !to.campaign) to.campaign = from.product;
-    if(tid === 'nova'   && !to.topic)    to.topic    = `${from.product} campaign proposal`;
-  }
-  if(CUR === 'indigo' && from.campaign && tid === 'nova' && !to.topic){
-    to.topic = `${from.campaign} pitch`;
-  }
-  openAgent(tid);
-  showToast(LANG.cur==='th' ? `ส่งต่อไปยัง ${AGENTS[tid].name} แล้ว ✓` : `Handed off to ${AGENTS[tid].name} ✓`);
+  const from=STATE[CUR]||{};if(!STATE[tid])STATE[tid]={};const to=STATE[tid];
+  ['audience','tone','language','message','objective'].forEach(k=>{if(from[k]&&!to[k])to[k]=from[k];});
+  if(CUR==='mango'&&from.product){if(tid==='indigo'&&!to.campaign)to.campaign=from.product;if(tid==='nova'&&!to.topic)to.topic=`${from.product} campaign proposal`;}
+  if(CUR==='indigo'&&from.campaign&&tid==='nova'&&!to.topic)to.topic=`${from.campaign} pitch`;
+  openAgent(tid);showToast(LANG.cur==='th'?`ส่งต่อไปยัง ${AGENTS[tid].name} แล้ว ✓`:`Handed off to ${AGENTS[tid].name} ✓`);
 }
-
-const toastEl = document.getElementById('toast');
-function showToast(msg, warn){
-  toastEl.textContent = msg;
-  toastEl.classList.toggle('warn', !!warn);
-  toastEl.classList.add('on');
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(()=>toastEl.classList.remove('on'), 2400);
-}
-
-function esc(s){
-  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(showToast._t);showToast._t=setTimeout(()=>t.classList.remove('on'),2200);}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function escH(s){return esc(s);}
 
 /* ─────────── INIT ─────────── */
 applyLang();
 setupCats();
 requestAnimationFrame(animateCats);
 
-let resizeTimer = 0;
-window.addEventListener('resize', ()=>{
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(()=>{
-    for(const id of Object.keys(walkers)) recomputeMax(id);
-  }, 120);
+// Re-setup on resize
+window.addEventListener('resize',()=>{
+  for(const[id,w] of Object.entries(walkers)){
+    const scene=w.el?.closest('.zone-scene');
+    if(scene) w.max=scene.offsetWidth-catW[id]-10;
+  }
 });
 </script>
 </body>
