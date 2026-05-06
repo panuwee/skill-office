@@ -324,6 +324,12 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 /* Prompt grid */
 .prompt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 @media(max-width:640px){.prompt-grid{grid-template-columns:1fr}}
+.pantry-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--line);-webkit-overflow-scrolling:touch}
+.pantry-tab{border:1px solid var(--line);background:var(--paper);color:var(--ink-2);border-radius:999px;padding:8px 12px;display:flex;align-items:center;gap:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;transition:all .18s}
+.pantry-tab:hover{border-color:var(--tyga);color:var(--ink);background:var(--tyga-s)}
+.pantry-tab.active{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.pantry-tab-count{font-size:10px;opacity:.75;font-weight:700}
+.pantry-dept-note{font-size:12px;color:var(--ink-2);margin:0 0 12px;line-height:1.5;grid-column:1/-1}
 
 /* Prompt card */
 .prompt-card{
@@ -519,9 +525,9 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
     <span style="font-size:20px">☕</span>
     <div class="pantry-text">
       <strong data-en="The Pantry" data-th="แพนทรี">The Pantry</strong>
-      <span data-en=" — 10 ready-to-use AI prompts. Click to open." data-th=" — 10 พรอมต์สำเร็จรูป คลิกเพื่อเปิด"> — 10 ready-to-use AI prompts. Click to open.</span>
+      <span data-en=" — ready-to-use AI prompts. Click to open." data-th=" — พรอมต์พร้อมใช้ คลิกเพื่อเปิด"> — ready-to-use AI prompts. Click to open.</span>
     </div>
-    <span class="pantry-badge">10 prompts</span>
+    <span class="pantry-badge">30 prompts</span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-left:auto;opacity:.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
   </div>
 </main>
@@ -535,7 +541,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
       <span style="font-size:22px">☕</span>
       <div>
         <h2 class="pantry-modal-title" data-en="The Pantry" data-th="แพนทรี">The Pantry</h2>
-        <p class="pantry-modal-sub" data-en="10 best ready-to-use AI prompts — click any card to copy & use" data-th="10 พรอมต์ AI สำเร็จรูปที่ดีที่สุด — คลิกที่การ์ดเพื่อ copy และใช้งาน">10 best ready-to-use AI prompts — click any card to copy & use</p>
+        <p class="pantry-modal-sub" data-en="ready-to-use AI prompts — click any card to copy & use" data-th="พรอมต์พร้อมใช้ — คลิกการ์ดเพื่อ copy และใช้งาน">ready-to-use AI prompts — click any card to copy & use</p>
       </div>
     </div>
     <button class="pantry-close" id="pantryClose"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -548,6 +554,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
   </div>
 
   <div class="pantry-body" id="pantryBody">
+    <div class="pantry-tabs" id="pantryTabs"></div>
     <div class="prompt-grid" id="promptGrid"></div>
   </div>
 </div>
@@ -999,6 +1006,7 @@ document.querySelectorAll('.lang-toggle button').forEach(btn=>{
     LANG.cur=btn.dataset.lang;
     applyLang();
     if(CUR) renderAgent(CUR);
+    if(document.getElementById('pantryModal')?.classList.contains('on')) buildPantry();
   });
 });
 
@@ -1094,7 +1102,8 @@ function generate(){
   const text=a.tpl(v);
 
   // ── Log generate event ──
-  logEvent(a.name, 'Generate');
+  const promptMeta = getAgentPromptMeta(CUR, a);
+  logEvent(a.name, 'Generate', promptMeta);
   const out=document.getElementById('output');
   const pre=document.getElementById('outPre');
   const ar=document.getElementById('actionRow');
@@ -1107,9 +1116,18 @@ function generate(){
   a.handoff.forEach(tid=>{const t=AGENTS[tid];hh+=`<button class="hoff-btn" data-t="${tid}">${t.name} →</button>`;});
   hr.innerHTML=hh;
   applyLang(ar);
-  document.getElementById('copyBtn').addEventListener('click',()=>copyText(text,'copyBtn'));
-  document.getElementById('geminiBtn').addEventListener('click',()=>copyAndOpen(text,'https://gemini.google.com/app'));
-  document.getElementById('chatgptBtn').addEventListener('click',()=>copyAndOpen(text,'https://chat.openai.com/'));
+  document.getElementById('copyBtn').addEventListener('click',()=>{
+    copyText(text,'copyBtn');
+    logEvent(a.name, 'Copy', {...promptMeta, destination:'Clipboard'});
+  });
+  document.getElementById('geminiBtn').addEventListener('click',()=>{
+    logEvent(a.name, 'Copy & Open', {...promptMeta, destination:'Gemini'});
+    copyAndOpen(text,'https://gemini.google.com/app');
+  });
+  document.getElementById('chatgptBtn').addEventListener('click',()=>{
+    logEvent(a.name, 'Copy & Open', {...promptMeta, destination:'ChatGPT'});
+    copyAndOpen(text,'https://chat.openai.com/');
+  });
   hr.querySelectorAll('.hoff-btn').forEach(b=>b.addEventListener('click',()=>handoff(b.dataset.t)));
   setTimeout(()=>out.scrollIntoView({behavior:'smooth',block:'start'}),50);
 }
@@ -1140,8 +1158,43 @@ function escH(s){return esc(s);}
 // 👇 วาง URL ของ Apps Script ที่ Deploy แล้วตรงนี้
 const LOG_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
 
-function logEvent(agent, action) {
-  if (!LOG_URL || LOG_URL === 'https://script.google.com/a/macros/garena.com/s/AKfycbyfdvoT5rue7RnYatbssxfSrTP744K7MoRZR8BQLhSCilIPkhnLhhc1v7HM5GGwcBWd/exec') return;
+function getAgentPromptMeta(id, agent) {
+  const meta = {
+    mango:  {promptId:'agent-tyga',  promptName:'Tyga - Campaign Idea Generator',       promptNameTh:'Tyga - สร้างไอเดียแคมเปญ'},
+    indigo: {promptId:'agent-mello', promptName:'Mello - Creative Brief Generator',     promptNameTh:'Mello - สร้าง Creative Brief'},
+    nova:   {promptId:'agent-nova',  promptName:'Nova - Pitch Deck Builder',           promptNameTh:'Nova - สร้าง Pitch Deck'},
+    echo:   {promptId:'agent-echo',  promptName:'Echo - Community Insight Analyzer',   promptNameTh:'Echo - วิเคราะห์ Community Insight'},
+  }[id] || {};
+
+  return {
+    promptId: meta.promptId || `agent-${id}`,
+    promptType: 'Agent',
+    promptGroup: 'Agent Zone',
+    promptName: meta.promptName || `${agent.name} Prompt`,
+    promptNameTh: meta.promptNameTh || `${agent.name} Prompt`,
+    destination: '',
+  };
+}
+
+function pantryPromptMeta(prompt, destination='Clipboard') {
+  return {
+    promptId: `pantry-${prompt.groupIndex + 1}-${prompt.num}`,
+    promptType: 'Pantry',
+    promptGroup: prompt.dept,
+    promptName: prompt.title,
+    promptNameTh: prompt.titleTh || prompt.title,
+    destination,
+  };
+}
+
+function destinationFromUrl(url) {
+  if(url.includes('gemini.google.com')) return 'Gemini';
+  if(url.includes('chat.openai.com')) return 'ChatGPT';
+  return 'External';
+}
+
+function logEvent(agent, action, meta={}) {
+  if (!LOG_URL || LOG_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
 
   const now  = new Date();
   const pad  = n => String(n).padStart(2, '0');
@@ -1160,279 +1213,334 @@ function logEvent(agent, action) {
       action,
       language: LANG.cur.toUpperCase(),
       device,
+      promptId: meta.promptId || '',
+      promptType: meta.promptType || '',
+      promptGroup: meta.promptGroup || '',
+      promptName: meta.promptName || '',
+      promptNameTh: meta.promptNameTh || '',
+      destination: meta.destination || '',
     }),
   }).catch(() => {}); // silent fail — ไม่ขัด UX
 }
-const PANTRY_PROMPTS = [
+const PANTRY_GROUPS = [
   {
-    num:1, title:'Master Thinking Prompt',
-    when:'ต้องการคิดให้ลึกขึ้น แก้ปัญหาซับซ้อน หรือหาทางเลือกที่ดีที่สุด',
-    text:`You are my strategic thinking partner.
-
-Goal: Help me solve [problem].
-Context: [give background, current situation, constraints].
-
-Your task:
-1. Identify the real root cause.
-2. Separate facts, assumptions, and unknowns.
-3. Give me 3 possible solutions.
-4. Recommend the best option with reasoning.
-5. List risks, edge cases, and next actions.
-
-Output format:
-- Root cause
-- Options
-- Recommendation
-- Risks
-- Next 3 actions
-
-Be direct, practical, and do not over-explain.`
+    "dept": "Marketing Campaign",
+    "deptTh": "แคมเปญการตลาด",
+    "prompts": [
+      {
+        "num": 1,
+        "title": "Campaign Strategy Review Prompt",
+        "when": "ตรวจแผนแคมเปญให้ชัด วัดผลได้ และพร้อมลงมือจริง",
+        "text": "You are Campaign Strategy Reviewer AI for FC Online marketing department.\n\nTask:\nReview whether this marketing campaign strategy is clear, executable, and likely to achieve the stated business goal.\n\nInputs:\n- Campaign objective:\n[paste objective]\n\n- Target audience:\n[paste audience]\n\n- Campaign concept:\n[paste concept]\n\n- Budget / timeline:\n[paste budget and timeline]\n\n- Channel plan:\n[paste channel plan]\n\nCheck:\n- Objective clarity\n- Audience fit\n- Message-market fit\n- Channel suitability\n- Timeline realism\n- Budget efficiency\n- KPI alignment\n- Creative feasibility\n- Operational dependency\n- Risk of weak conversion\n\nRules:\n- Do not approve if campaign goal is vague.\n- Do not approve if target audience and message do not match.\n- Do not approve if KPI cannot be measured.\n- Flag any campaign idea that sounds exciting but lacks execution detail.\n\nOutput format:\n## Campaign Strategy Review\nApproved / Changes Requested / Blocked\n\n## Strong Points\n## Blocking Issues\n## Non-blocking Risks\n## Missing Information\n## Recommended Fixes\n## Final Recommendation",
+        "titleTh": "ตรวจแผนกลยุทธ์แคมเปญ"
+      },
+      {
+        "num": 2,
+        "title": "Campaign Big Idea Generator Prompt",
+        "when": "หา big idea สำหรับ acquisition, engagement หรือ monetization",
+        "text": "You are Senior Creative Strategy AI for FC Online marketing department.\n\nTask:\nGenerate strong campaign big ideas that can be used for acquisition, engagement, or monetization.\n\nInputs:\n- Product / event:\n[paste product or event]\n\n- Business goal:\n[paste goal]\n\n- Target audience:\n[paste audience]\n\n- Key offer / reward:\n[paste offer]\n\n- Campaign period:\n[paste period]\n\nCheck:\n- Clear player hook\n- Emotional reason to join\n- Competitive or social motivation\n- Shareability\n- Monetization potential\n- Suitability for TikTok, Facebook, YouTube, Discord\n- Ease of production\n- Fit with FC Online player behavior\n\nRules:\n- Avoid generic ideas.\n- Do not suggest ideas that require unrealistic budget or production.\n- Each idea must include why players should care.\n- Each idea must be executable within the campaign period.\n\nOutput format:\n## Campaign Big Ideas\n\nFor each idea:\n### Idea Name\n- Core concept:\n- Player hook:\n- Main message:\n- Suggested visual:\n- Suggested content formats:\n- Activation mechanic:\n- KPI to track:\n- Risk:",
+        "titleTh": "คิด Big Idea สำหรับแคมเปญ"
+      },
+      {
+        "num": 3,
+        "title": "Paid Ads Angle Prompt",
+        "when": "แตกมุมยิง ads, hook, audience และแผน A/B test",
+        "text": "You are Performance Marketing AI for FC Online marketing department.\n\nTask:\nCreate paid advertising angles for a campaign and prepare A/B testing structure.\n\nInputs:\n- Campaign:\n[paste campaign]\n\n- Offer:\n[paste offer]\n\n- Audience segment:\n[paste audience]\n\n- Platform:\n[paste Meta / TikTok / YouTube]\n\n- Budget:\n[paste budget]\n\nCheck:\n- Hook strength\n- Audience pain point or desire\n- Clear CTA\n- Creative format fit\n- Funnel stage\n- Message variation\n- Testing logic\n- Expected conversion risk\n- Compliance with platform rules\n\nRules:\n- Do not create only one ad angle.\n- Do not use vague hooks like \"Don't miss out\" unless improved with specific benefit.\n- Separate awareness, engagement, and conversion ads.\n- Include what to stop if performance is weak.\n\nOutput format:\n## Paid Ads Plan\n## Audience Segments\n## Ad Angles\n## Hook Options\n## Creative Direction\n## A/B Test Plan\n## KPI Benchmarks\n## Stop / Continue / Scale Rules",
+        "titleTh": "แตกมุมโฆษณาแบบ Paid Ads"
+      },
+      {
+        "num": 4,
+        "title": "Launch Marketing Calendar Prompt",
+        "when": "จัด timeline เปิดตัว campaign พร้อม asset, owner และความเสี่ยง",
+        "text": "You are Marketing Launch Planner AI for FC Online marketing department.\n\nTask:\nCreate a launch marketing calendar for a campaign, event, or product.\n\nInputs:\n- Launch item:\n[paste campaign/event/product]\n\n- Launch date:\n[paste date]\n\n- Campaign period:\n[paste period]\n\n- Channels:\n[paste channels]\n\n- Creative assets available:\n[paste asset list]\n\nCheck:\n- Pre-launch buildup\n- Launch-day visibility\n- Post-launch reminder\n- Platform-specific content\n- Creative readiness\n- Owner responsibility\n- Timing conflict\n- CTA clarity\n- KPI tracking\n\nRules:\n- Do not create a calendar without owners.\n- Do not overload one day with too many important posts.\n- Flag missing creative assets.\n- Include backup content if launch is delayed.\n\nOutput format:\n## Launch Calendar\n| Date | Channel | Content | Objective | Owner | Asset Needed | KPI |\n\n## Missing Assets\n## Risks\n## Owner Actions\n## Final Recommendation",
+        "titleTh": "วางปฏิทินการตลาดช่วง Launch"
+      },
+      {
+        "num": 5,
+        "title": "Campaign Post-Mortem Prompt",
+        "when": "สรุปผลแคมเปญ หาสาเหตุ และวาง next experiment",
+        "text": "You are Campaign Performance Reviewer AI for FC Online marketing department.\n\nTask:\nAnalyze campaign performance and explain what worked, what failed, and what to improve next time.\n\nInputs:\n- Campaign plan:\n[paste plan]\n\n- Actual results:\n[paste performance data]\n\n- Spend:\n[paste spend]\n\n- Content performance:\n[paste content data]\n\n- Learnings from team:\n[paste notes]\n\nCheck:\n- KPI achievement\n- Spend efficiency\n- Channel performance\n- Creative performance\n- Audience response\n- Conversion quality\n- Operational issues\n- Missed opportunities\n- Repeatable learnings\n\nRules:\n- Do not judge success by vanity metrics only.\n- Separate data-backed findings from opinions.\n- Identify root cause, not only symptoms.\n- Recommend concrete next experiments.\n\nOutput format:\n## Campaign Result\nWin / Mixed / Failed\n\n## KPI Summary\n## What Worked\n## What Did Not Work\n## Root Causes\n## Next Experiments\n## Final Recommendation",
+        "titleTh": "สรุปบทเรียนหลังจบแคมเปญ"
+      }
+    ]
   },
   {
-    num:2, title:'CEO Decision Prompt',
-    when:'ต้องตัดสินใจเรื่องธุรกิจ งาน เงิน ทีม หรือทิศทางสำคัญ',
-    text:`Act as a clear, practical CEO advisor.
-
-I need to decide: [decision].
-Context: [details].
-Constraints: [money/time/team/legal/technical limits].
-
-Analyze this like an executive:
-- What matters most?
-- What is noise?
-- What are the tradeoffs?
-- What is the cost of waiting?
-- What decision would you make today?
-
-Give me:
-1. Recommended decision
-2. Why
-3. What could go wrong
-4. How to reduce risk
-5. First action to take`
+    "dept": "Operation: Activeness & Monetization",
+    "deptTh": "ปฏิบัติการ / ความถี่การเล่น / รายได้",
+    "prompts": [
+      {
+        "num": 1,
+        "title": "Launch Readiness Review Prompt",
+        "when": "ตรวจความพร้อมก่อน launch จากมุม operation และ business risk",
+        "text": "You are Reviewer / Launch Readiness AI for FC Online operations department.\n\nTask:\nReview whether this campaign, product, event, or config is ready to launch.\n\nInputs:\n- Original plan:\n[paste source plan]\n\n- Generated config:\n[paste config summary]\n\n- QA result:\n[paste QA result]\n\n- Creative brief status:\n[paste brief status]\n\nCheck:\n- Plan vs config consistency\n- Product/event/reward correctness\n- ID formatting\n- Header count\n- Timezone conversion\n- Missing required fields\n- QA blockers\n- Creative blockers\n- Owner responsibility\n- Production upload risk\n\nRules:\n- Do not approve if source data conflicts.\n- Do not approve if QA is missing.\n- Do not approve if production-impacting ambiguity remains.\n- Give clear final status only.\n\nOutput format:\n## Launch Readiness\nApproved / Changes Requested / Blocked\n\n## Checked Sources\n## Blocking Issues\n## Non-blocking Risks\n## Required Owner Actions\n## Final Recommendation",
+        "titleTh": "ตรวจความพร้อมก่อน Launch"
+      },
+      {
+        "num": 2,
+        "title": "Activeness Plan Prompt",
+        "when": "ออกแบบกิจกรรมเพิ่มการเล่นซ้ำแบบ daily / weekly loop",
+        "text": "You are Live Operations AI for FC Online operations department.\n\nTask:\nCreate a player activeness plan to increase daily and weekly participation.\n\nInputs:\n- Current active user problem:\n[paste problem]\n\n- Target player segment:\n[paste segment]\n\n- Available rewards:\n[paste rewards]\n\n- Event period:\n[paste dates]\n\n- Platform channels:\n[paste channels]\n\nCheck:\n- Daily participation hook\n- Weekly return reason\n- Reward attractiveness\n- Difficulty balance\n- Player fatigue risk\n- Abuse or farming risk\n- Communication clarity\n- Operational workload\n- KPI measurability\n\nRules:\n- Do not suggest rewards without explaining expected behavior.\n- Do not create mechanics that require heavy manual operation unless stated.\n- Include fallback actions if participation is low.\n- Prioritize simple repeatable loops.\n\nOutput format:\n## Activeness Plan\n## Player Behavior Goal\n## Event Mechanics\n## Reward Structure\n## Daily / Weekly Loop\n## Communication Plan\n## KPI\n## Risks\n## Owner Actions",
+        "titleTh": "วางแผนเพิ่มความถี่การเล่น"
+      },
+      {
+        "num": 3,
+        "title": "Monetization Offer Review Prompt",
+        "when": "รีวิว offer ขายของให้สมดุล revenue กับ player experience",
+        "text": "You are Monetization Review AI for FC Online operations department.\n\nTask:\nReview whether a monetization offer is attractive, clear, fair, and ready to publish.\n\nInputs:\n- Offer details:\n[paste offer]\n\n- Price / currency:\n[paste price]\n\n- Reward list:\n[paste reward]\n\n- Target segment:\n[paste segment]\n\n- Campaign period:\n[paste dates]\n\nCheck:\n- Value perception\n- Price fairness\n- Reward correctness\n- Purchase motivation\n- Urgency mechanic\n- Cannibalization risk\n- Player backlash risk\n- VIP / whale / casual fit\n- Revenue tracking\n- Legal or platform restriction\n\nRules:\n- Do not approve if reward or price is unclear.\n- Do not approve if offer could be misunderstood by players.\n- Flag any unfair or overly aggressive monetization.\n- Recommend clearer wording if needed.\n\nOutput format:\n## Monetization Readiness\nApproved / Changes Requested / Blocked\n\n## Offer Summary\n## Blocking Issues\n## Player Experience Risks\n## Revenue Opportunities\n## Required Fixes\n## Final Recommendation",
+        "titleTh": "รีวิวข้อเสนอ Monetization"
+      },
+      {
+        "num": 4,
+        "title": "Retention Loop Design Prompt",
+        "when": "ออกแบบ loop ดึงผู้เล่นกลับมาเล่นต่ออย่างเป็นระบบ",
+        "text": "You are Retention Strategy AI for FC Online operations department.\n\nTask:\nDesign a retention loop that makes players return repeatedly during an event or campaign.\n\nInputs:\n- Event / product:\n[paste event]\n\n- Target segment:\n[paste segment]\n\n- Current retention issue:\n[paste issue]\n\n- Available mechanics:\n[paste mechanics]\n\n- Rewards:\n[paste rewards]\n\nCheck:\n- Day 1 hook\n- Day 3 reason to return\n- Day 7 reward motivation\n- Progress visibility\n- Social trigger\n- Reminder message\n- Reward balance\n- Drop-off risk\n- Measurement plan\n\nRules:\n- Do not rely only on rewards; include emotional or competitive motivation.\n- Do not create a loop that feels like chores.\n- Include reactivation message for inactive users.\n- Keep the loop simple enough for players to understand quickly.\n\nOutput format:\n## Retention Loop\n## Player Journey\n## Return Triggers\n## Reward Milestones\n## Communication Plan\n## Drop-off Risks\n## KPI\n## Recommended Actions",
+        "titleTh": "ออกแบบ Retention Loop"
+      },
+      {
+        "num": 5,
+        "title": "Production Upload Risk Prompt",
+        "when": "ตรวจความเสี่ยงก่อน upload production พร้อม rollback และ owner action",
+        "text": "You are Production Risk Reviewer AI for FC Online operations department.\n\nTask:\nReview whether a production upload is safe to execute.\n\nInputs:\n- Upload item:\n[paste item]\n\n- Config summary:\n[paste config]\n\n- Upload time:\n[paste time]\n\n- QA status:\n[paste QA]\n\n- Owner:\n[paste owner]\n\nCheck:\n- Correct environment\n- Correct file/version\n- Correct timing\n- Timezone conversion\n- Dependency readiness\n- Rollback plan\n- QA evidence\n- Communication readiness\n- Production impact\n- Owner confirmation\n\nRules:\n- Do not approve if rollback plan is missing.\n- Do not approve if QA evidence is missing.\n- Do not approve if upload time conflicts with live service.\n- Clearly separate blocker from caution.\n\nOutput format:\n## Production Upload Status\nApproved / Changes Requested / Blocked\n\n## Confirmed Items\n## Blocking Issues\n## Upload Risks\n## Rollback Requirement\n## Owner Actions\n## Final Recommendation",
+        "titleTh": "ตรวจความเสี่ยงก่อนอัปโหลด Production"
+      }
+    ]
   },
   {
-    num:3, title:'Deep Research Prompt',
-    when:'ต้องการ research ที่ไม่มั่ว แยก fact ออกจาก opinion',
-    text:`Research [topic] for me.
-
-Use only reliable and current sources if browsing is available.
-
-Separate:
-- Confirmed facts
-- Expert opinions
-- Unclear or disputed points
-- Practical implications
-
-Output:
-1. Executive summary
-2. Key findings
-3. Important numbers or examples
-4. Risks or limitations
-5. My best next move
-
-Keep it concise but complete.`
+    "dept": "eSport Tournament",
+    "deptTh": "อีสปอร์ตและทัวร์นาเมนต์",
+    "prompts": [
+      {
+        "num": 1,
+        "title": "Tournament Format Design Prompt",
+        "when": "ออกแบบ format การแข่งขัน schedule rules และ admin flow",
+        "text": "You are Esports Tournament Director AI for FC Online esports department.\n\nTask:\nDesign a tournament format that is fair, exciting, and operationally manageable.\n\nInputs:\n- Game:\nFC Online\n\n- Number of teams / players:\n[paste number]\n\n- Tournament goal:\n[paste goal]\n\n- Timeline:\n[paste dates]\n\n- Prize pool:\n[paste prize]\n\nCheck:\n- Format suitability\n- Match duration\n- Bracket fairness\n- Check-in flow\n- Admin workload\n- Stream suitability\n- Tie-break rule\n- Dispute handling\n- Player experience\n- Schedule risk\n\nRules:\n- Do not create a format that cannot finish within the timeline.\n- Do not omit tie-break and dispute rules.\n- Keep the format easy for players to understand.\n- Flag operational risks clearly.\n\nOutput format:\n## Tournament Format\n## Player Flow\n## Schedule\n## Match Rules\n## Admin Requirements\n## Risks\n## Final Recommendation",
+        "titleTh": "ออกแบบรูปแบบการแข่งขัน"
+      },
+      {
+        "num": 2,
+        "title": "Tournament Rules Review Prompt",
+        "when": "ตรวจ rules ให้ชัด ลดช่องโหว่และข้อโต้แย้ง",
+        "text": "You are Tournament Rules Reviewer AI for FC Online esports department.\n\nTask:\nReview whether tournament rules are complete, clear, and enforceable.\n\nInputs:\n- Draft rules:\n[paste rules]\n\n- Tournament format:\n[paste format]\n\n- Prize details:\n[paste prize]\n\n- Registration process:\n[paste process]\n\nCheck:\n- Eligibility\n- Registration requirement\n- Check-in rule\n- Match rule\n- No-show rule\n- Disconnect rule\n- Cheating policy\n- Dispute process\n- Prize condition\n- Admin final decision clause\n\nRules:\n- Do not approve if rules cannot be enforced.\n- Do not approve if prize conditions are unclear.\n- Do not approve if dispute process is missing.\n- Rewrite unclear rules in simple player-friendly language.\n\nOutput format:\n## Rules Readiness\nApproved / Changes Requested / Blocked\n\n## Missing Rules\n## Ambiguous Rules\n## High-risk Clauses\n## Recommended Rewrite\n## Final Recommendation",
+        "titleTh": "ตรวจร่างกติกาการแข่งขัน"
+      },
+      {
+        "num": 3,
+        "title": "Broadcast Run of Show Prompt",
+        "when": "วาง run of show สำหรับ broadcast พร้อม sponsor และ backup segment",
+        "text": "You are Esports Broadcast Producer AI for FC Online esports department.\n\nTask:\nCreate a livestream run of show for a tournament broadcast.\n\nInputs:\n- Tournament name:\n[paste name]\n\n- Broadcast date/time:\n[paste time]\n\n- Match schedule:\n[paste schedule]\n\n- Hosts / casters:\n[paste names]\n\n- Sponsor requirements:\n[paste sponsor notes]\n\nCheck:\n- Opening flow\n- Match timing\n- Caster segments\n- Sponsor mentions\n- Break content\n- Interview slot\n- Emergency filler\n- Result announcement\n- CTA clarity\n- Stream delay risk\n\nRules:\n- Do not leave dead air between matches.\n- Do not miss required sponsor mentions.\n- Include backup content for delays.\n- Keep timing realistic.\n\nOutput format:\n## Broadcast Run of Show\n| Time | Segment | Detail | Owner | Asset Needed |\n\n## Sponsor Integration\n## Backup Segments\n## Risks\n## Final Checklist",
+        "titleTh": "วาง Run of Show สำหรับ Broadcast"
+      },
+      {
+        "num": 4,
+        "title": "Sponsorship Package Prompt",
+        "when": "ทำแพ็กเกจ sponsor, deliverables และ reporting metrics",
+        "text": "You are Esports Sponsorship Strategy AI for FC Online esports department.\n\nTask:\nCreate a sponsorship package for an esports tournament.\n\nInputs:\n- Tournament overview:\n[paste overview]\n\n- Expected reach:\n[paste reach]\n\n- Audience profile:\n[paste audience]\n\n- Available inventory:\n[paste assets]\n\n- Sponsor category:\n[paste category]\n\nCheck:\n- Sponsor value\n- Brand visibility\n- Stream integration\n- Social deliverables\n- Community activation\n- Lead or conversion opportunity\n- Pricing logic\n- Reporting metrics\n- Fulfillment risk\n\nRules:\n- Do not promise metrics that cannot be tracked.\n- Do not create benefits the team cannot deliver.\n- Separate premium, standard, and entry-level tiers.\n- Include proof-of-value reporting.\n\nOutput format:\n## Sponsorship Package\n## Sponsor Tiers\n## Deliverables\n## Activation Ideas\n## Reporting Metrics\n## Fulfillment Risks\n## Recommendation",
+        "titleTh": "ออกแบบแพ็กเกจ Sponsor"
+      },
+      {
+        "num": 5,
+        "title": "Tournament Post-Event Review Prompt",
+        "when": "สรุปผล tournament และสิ่งที่ต้องปรับในรอบถัดไป",
+        "text": "You are Esports Event Review AI for FC Online esports department.\n\nTask:\nReview tournament performance after completion.\n\nInputs:\n- Tournament plan:\n[paste plan]\n\n- Actual results:\n[paste results]\n\n- Stream analytics:\n[paste analytics]\n\n- Player feedback:\n[paste feedback]\n\n- Admin issues:\n[paste issues]\n\nCheck:\n- Participant turnout\n- Match completion\n- Stream performance\n- Engagement\n- Sponsor delivery\n- Rule disputes\n- Admin workload\n- Technical issues\n- Player satisfaction\n- Repeatability\n\nRules:\n- Do not judge success by view count only.\n- Identify operational root causes.\n- Separate player issues from admin issues.\n- Recommend improvements for next tournament.\n\nOutput format:\n## Tournament Result\nSuccessful / Mixed / Failed\n\n## KPI Review\n## What Worked\n## What Failed\n## Root Causes\n## Next Tournament Improvements\n## Final Recommendation",
+        "titleTh": "สรุปผลหลังจบทัวร์นาเมนต์"
+      }
+    ]
   },
   {
-    num:4, title:'Learning Anything Fast Prompt',
-    when:'อยากเรียนเรื่องใหม่เร็วๆ แบบเข้าใจและนำไปใช้ได้จริง',
-    text:`Teach me [topic] from zero to practical level.
-
-My current level: [beginner/intermediate/advanced].
-My goal: [what I want to do with it].
-Time available: [time].
-
-Create:
-1. Simple explanation
-2. Mental model
-3. Key concepts
-4. Common mistakes
-5. Practice exercises
-6. 7-day learning plan
-
-Use examples, not theory only.`
+    "dept": "Graphic Designer / Video Editor",
+    "deptTh": "กราฟิกและวิดีโอ",
+    "prompts": [
+      {
+        "num": 1,
+        "title": "Creative Brief Generator Prompt",
+        "when": "สร้าง brief ให้ทีม design / video ทำงานต่อได้ทันที",
+        "text": "You are Creative Brief AI for FC Online design and video team.\n\nTask:\nCreate a clear creative brief for campaign visuals or videos.\n\nInputs:\n- Campaign / event:\n[paste campaign]\n\n- Objective:\n[paste objective]\n\n- Target audience:\n[paste audience]\n\n- Key message:\n[paste message]\n\n- Required assets:\n[paste asset list]\n\nCheck:\n- Objective clarity\n- Visual direction\n- Text hierarchy\n- Brand consistency\n- Required sizes\n- Deadline\n- Platform fit\n- CTA visibility\n- Production complexity\n- Approval owner\n\nRules:\n- Do not create vague design direction like \"make it exciting\" without visual explanation.\n- Include exact asset sizes if available.\n- Separate must-have from nice-to-have.\n- Flag missing copy or visual references.\n\nOutput format:\n## Creative Brief\n## Objective\n## Key Message\n## Visual Direction\n## Required Assets\n## Copy Requirements\n## Do / Don’t\n## Deadline & Owner\n## Open Questions",
+        "titleTh": "สร้าง Creative Brief"
+      },
+      {
+        "num": 2,
+        "title": "Creative Readiness Review Prompt",
+        "when": "ตรวจ asset ก่อนปล่อยจริงว่าครบ ชัด และไม่เสี่ยง",
+        "text": "You are Creative Readiness Reviewer AI for FC Online design and video team.\n\nTask:\nReview whether creative assets are ready for launch.\n\nInputs:\n- Creative brief:\n[paste brief]\n\n- Asset list:\n[paste assets]\n\n- Final designs / video status:\n[paste status]\n\n- Copy:\n[paste copy]\n\n- Launch date:\n[paste date]\n\nCheck:\n- Asset completeness\n- Size correctness\n- Copy accuracy\n- Reward / date / CTA correctness\n- Brand consistency\n- Platform suitability\n- Export format\n- Approval status\n- Missing localization\n- Production upload risk\n\nRules:\n- Do not approve if date, reward, or CTA conflicts with source plan.\n- Do not approve if required sizes are missing.\n- Do not approve if final approval is missing.\n- Clearly list what must be fixed before launch.\n\nOutput format:\n## Creative Readiness\nApproved / Changes Requested / Blocked\n\n## Completed Assets\n## Missing Assets\n## Blocking Issues\n## Non-blocking Risks\n## Required Designer / Editor Actions\n## Final Recommendation",
+        "titleTh": "ตรวจความพร้อมของ Creative Asset"
+      },
+      {
+        "num": 3,
+        "title": "Short Video Script Prompt",
+        "when": "เขียนสคริปต์วิดีโอสั้นพร้อม hook, scene และ CTA",
+        "text": "You are Gaming Video Script AI for FC Online video team.\n\nTask:\nCreate a short-form video script for TikTok, Reels, Shorts, or Facebook.\n\nInputs:\n- Campaign / event:\n[paste campaign]\n\n- Video length:\n[paste 15/30/60 sec]\n\n- Main message:\n[paste message]\n\n- Target audience:\n[paste audience]\n\n- CTA:\n[paste CTA]\n\nCheck:\n- First 3-second hook\n- Clear player benefit\n- Scene flow\n- On-screen text\n- Voiceover\n- Music mood\n- Gameplay or visual needs\n- CTA strength\n- Platform fit\n- Production difficulty\n\nRules:\n- Do not write a slow intro.\n- Do not make the video depend on hard-to-get footage unless stated.\n- Keep text short enough for mobile.\n- Include editor notes.\n\nOutput format:\n## Video Script\n## Hook\n## Scene-by-scene\n## On-screen Text\n## Voiceover\n## Visual / Gameplay Needed\n## Music & SFX Direction\n## CTA\n## Editor Notes",
+        "titleTh": "เขียนสคริปต์วิดีโอสั้น"
+      },
+      {
+        "num": 4,
+        "title": "Thumbnail / Key Visual Review Prompt",
+        "when": "รีวิว thumbnail หรือ key visual ให้ดึงดูดและอ่านง่าย",
+        "text": "You are Visual Performance Reviewer AI for FC Online design team.\n\nTask:\nReview whether a thumbnail or key visual is strong enough to get attention and communicate clearly.\n\nInputs:\n- Visual concept:\n[paste concept]\n\n- Campaign objective:\n[paste objective]\n\n- Platform:\n[paste platform]\n\n- Target audience:\n[paste audience]\n\n- Copy on visual:\n[paste copy]\n\nCheck:\n- First-glance clarity\n- Text readability\n- Main subject focus\n- Emotional pull\n- Brand fit\n- CTA visibility\n- Mobile readability\n- Visual hierarchy\n- Overcrowding\n- Misleading information\n\nRules:\n- Do not approve if players cannot understand the offer within 3 seconds.\n- Do not approve if text is too small or overloaded.\n- Flag any mismatch between visual and campaign message.\n- Recommend practical design fixes.\n\nOutput format:\n## Visual Review\nApproved / Changes Requested / Blocked\n\n## What Works\n## Blocking Issues\n## Design Fixes\n## Copy Fixes\n## Final Recommendation",
+        "titleTh": "รีวิว Thumbnail / Key Visual"
+      },
+      {
+        "num": 5,
+        "title": "Asset Production Checklist Prompt",
+        "when": "ทำ checklist ผลิต asset พร้อม owner, deadline และ dependency",
+        "text": "You are Asset Production Manager AI for FC Online creative team.\n\nTask:\nCreate a production checklist for all design and video assets needed for launch.\n\nInputs:\n- Campaign plan:\n[paste plan]\n\n- Channels:\n[paste channels]\n\n- Required formats:\n[paste formats]\n\n- Deadline:\n[paste deadline]\n\n- Team members:\n[paste names]\n\nCheck:\n- Asset type\n- Size / ratio\n- Copy requirement\n- Source file\n- Export format\n- Platform requirement\n- Owner\n- Review status\n- Approval status\n- Upload readiness\n\nRules:\n- Do not leave ownership blank.\n- Do not mark asset ready without approval status.\n- Flag high-priority assets.\n- Include final delivery checklist.\n\nOutput format:\n## Asset Production Checklist\n| Asset | Size | Platform | Owner | Status | Approval | Risk |\n\n## Missing Inputs\n## High-priority Assets\n## Upload Checklist\n## Final Recommendation",
+        "titleTh": "ทำ Checklist ผลิต Asset"
+      }
+    ]
   },
   {
-    num:5, title:'Better Writing Prompt',
-    when:'เขียนโพสต์ อีเมล proposal caption sales page หรือข้อความสำคัญ',
-    text:`Rewrite this text for [audience] with the goal of [goal].
-
-Text:
-[paste text]
-
-Tone: [clear/professional/friendly/persuasive/direct].
-
-Constraints:
-- Keep the meaning
-- Remove fluff
-- Make it easier to read
-- Improve structure
-- Do not make it sound artificial
-
-Give me 3 versions:
-1. Short version
-2. Polished version
-3. Strong persuasive version`
+    "dept": "Community / Content",
+    "deptTh": "คอมมูนิตี้และคอนเทนต์",
+    "prompts": [
+      {
+        "num": 1,
+        "title": "Content Calendar Prompt",
+        "when": "วาง content calendar ตาม campaign, channel และ player behavior",
+        "text": "You are Community Content Planner AI for FC Online community team.\n\nTask:\nCreate a content calendar that keeps the community active and supports campaign goals.\n\nInputs:\n- Campaign / period:\n[paste campaign]\n\n- Community platform:\n[paste Facebook / Discord / TikTok]\n\n- Target audience:\n[paste audience]\n\n- Key messages:\n[paste messages]\n\n- Available rewards:\n[paste rewards]\n\nCheck:\n- Content variety\n- Engagement mechanic\n- Campaign support\n- Platform fit\n- Posting frequency\n- CTA clarity\n- Moderation workload\n- Reward usage\n- KPI tracking\n- Community sentiment risk\n\nRules:\n- Do not create only announcement posts.\n- Include interactive posts.\n- Balance fun, useful, and promotional content.\n- Flag posts that may cause confusion or backlash.\n\nOutput format:\n## Content Calendar\n| Date | Platform | Content | Objective | CTA | Owner | KPI |\n\n## Engagement Hooks\n## Risk Notes\n## Required Assets\n## Final Recommendation",
+        "titleTh": "วาง Content Calendar"
+      },
+      {
+        "num": 2,
+        "title": "Community Engagement Prompt",
+        "when": "คิดกิจกรรมและคำถามเพื่อเพิ่ม engagement ใน community",
+        "text": "You are Community Engagement AI for FC Online community team.\n\nTask:\nDesign weekly engagement activities for players.\n\nInputs:\n- Community goal:\n[paste goal]\n\n- Player segment:\n[paste segment]\n\n- Available rewards:\n[paste rewards]\n\n- Platform:\n[paste platform]\n\n- Time period:\n[paste period]\n\nCheck:\n- Ease of participation\n- Fun factor\n- Shareability\n- Reward fairness\n- Moderation need\n- Abuse risk\n- Repeatability\n- KPI\n- Community tone\n- Operational effort\n\nRules:\n- Do not suggest activities that are hard to understand.\n- Do not rely only on giveaways.\n- Include low-effort and high-engagement options.\n- Include moderation notes.\n\nOutput format:\n## Engagement Plan\n## Weekly Activities\n## Participation Rules\n## Reward Plan\n## Moderation Notes\n## Abuse Risks\n## KPI\n## Final Recommendation",
+        "titleTh": "ออกแบบกิจกรรม Community Engagement"
+      },
+      {
+        "num": 3,
+        "title": "Community Sentiment Review Prompt",
+        "when": "สรุป sentiment จาก community แยก fact, emotion และ action",
+        "text": "You are Community Sentiment Analyst AI for FC Online community team.\n\nTask:\nAnalyze community feedback and identify key issues, risks, and action items.\n\nInputs:\n- Player comments:\n[paste comments]\n\n- Campaign / update context:\n[paste context]\n\n- Platform:\n[paste platform]\n\n- Time period:\n[paste period]\n\nCheck:\n- Positive sentiment\n- Negative sentiment\n- Repeated complaints\n- Misunderstanding\n- Product issue\n- Reward issue\n- Communication issue\n- Potential crisis\n- Influencer amplification risk\n- Required response\n\nRules:\n- Do not overreact to one isolated comment.\n- Do not ignore repeated complaints.\n- Separate emotional reaction from real operational issue.\n- Recommend response tone and owner action.\n\nOutput format:\n## Sentiment Summary\nPositive / Neutral / Negative / Mixed\n\n## Main Themes\n## Repeated Issues\n## Potential Crisis\n## Recommended Response\n## Owner Actions\n## Final Recommendation",
+        "titleTh": "วิเคราะห์ Sentiment จาก Community"
+      },
+      {
+        "num": 4,
+        "title": "Community Announcement Prompt",
+        "when": "ร่างประกาศให้ชัด ลดความเข้าใจผิด และมี next step",
+        "text": "You are Community Communication AI for FC Online community team.\n\nTask:\nWrite a clear community announcement for campaign, event, update, or issue.\n\nInputs:\n- Announcement topic:\n[paste topic]\n\n- Key facts:\n[paste facts]\n\n- Date / time:\n[paste time]\n\n- Reward / requirement:\n[paste reward]\n\n- CTA:\n[paste CTA]\n\nCheck:\n- Clarity\n- Correct date/time\n- Reward accuracy\n- Player action required\n- Tone\n- FAQ gaps\n- Misunderstanding risk\n- Platform fit\n- CTA\n- Support contact\n\nRules:\n- Do not use unclear or corporate-heavy language.\n- Do not hide important conditions.\n- If date/time matters, show timezone.\n- Include short FAQ if needed.\n\nOutput format:\n## Announcement Copy\n## Short Version\n## Long Version\n## FAQ\n## Player CTA\n## Risk Notes",
+        "titleTh": "เขียนประกาศสำหรับ Community"
+      },
+      {
+        "num": 5,
+        "title": "Crisis Response Prompt",
+        "when": "วาง response เมื่อเกิดประเด็นร้อนหรือ feedback เชิงลบ",
+        "text": "You are Community Crisis Response AI for FC Online community team.\n\nTask:\nCreate a response plan for a community issue or backlash.\n\nInputs:\n- Issue:\n[paste issue]\n\n- What players are saying:\n[paste comments]\n\n- Confirmed facts:\n[paste facts]\n\n- Unknowns:\n[paste unknowns]\n\n- Business impact:\n[paste impact]\n\nCheck:\n- Severity\n- Player trust impact\n- Fact clarity\n- Internal owner\n- Public response need\n- Compensation need\n- Timeline\n- Escalation path\n- What not to say\n- Follow-up communication\n\nRules:\n- Do not invent facts.\n- Do not apologize for unconfirmed issues as confirmed.\n- Do not blame players.\n- Give calm, clear, action-based communication.\n\nOutput format:\n## Crisis Level\nLow / Medium / High / Critical\n\n## Confirmed Facts\n## Unknowns\n## Public Response\n## Internal Actions\n## Escalation Owner\n## Follow-up Plan\n## Final Recommendation",
+        "titleTh": "วางแผนตอบสนอง Crisis"
+      }
+    ]
   },
   {
-    num:6, title:'Business Idea Validator Prompt',
-    when:'มีไอเดียธุรกิจ สินค้า คอร์ส startup หรือบริการใหม่',
-    text:`Evaluate this business idea brutally but constructively.
-
-Idea: [business idea]
-Target customer: [customer]
-Problem solved: [problem]
-Business model: [how it makes money]
-
-Analyze:
-1. Is the problem painful enough?
-2. Who exactly pays?
-3. Why now?
-4. Competition
-5. Distribution strategy
-6. Main risks
-7. Fastest validation test
-
-End with:
-- Score out of 10
-- Go / No-go / Modify
-- Best next experiment`
-  },
-  {
-    num:7, title:'Prompt Optimizer Prompt',
-    when:'มี prompt อยู่แล้ว แต่อยากให้คมขึ้น ใช้ซ้ำได้ และได้ผลลัพธ์ดีขึ้น',
-    text:`You are an expert prompt engineer.
-
-Improve this prompt:
-[paste prompt]
-
-Your task:
-1. Identify what is unclear or weak.
-2. Rewrite it into a stronger prompt.
-3. Add missing context, constraints, and output format.
-4. Make it reusable as a template.
-5. Explain briefly why the new version is better.
-
-Output:
-- Problems in original prompt
-- Improved prompt
-- Optional advanced version`
-  },
-  {
-    num:8, title:'Coding / Technical Builder Prompt',
-    when:'เขียนโค้ด แก้ bug ออกแบบ feature หรือ review technical approach',
-    text:`You are a senior software engineer.
-
-Task: Build or fix [feature/problem].
-Context: [tech stack, files, requirements].
-Constraints: [performance/security/UI/API/backward compatibility].
-
-Before coding:
-1. Explain the likely root cause or implementation approach.
-2. Identify affected files/modules.
-3. Point out risks.
-
-Then provide:
-- Minimal solution
-- Code changes
-- Tests or verification steps
-- Edge cases to check
-
-Keep the solution simple and avoid unnecessary refactoring.`
-  },
-  {
-    num:9, title:'Personal Productivity System Prompt',
-    when:'งานเยอะ ความคิดเยอะ ไม่รู้จะเริ่มจากอะไร',
-    text:`Act as my operations assistant.
-
-Here is everything on my mind:
-[paste tasks, ideas, obligations]
-
-Organize it into:
-1. Must do today
-2. Should schedule
-3. Can delegate
-4. Can delete
-5. Needs clarification
-
-Then create:
-- A realistic plan for today
-- A 7-day plan
-- The single highest-leverage action
-- What I should stop doing`
-  },
-  {
-    num:10, title:'High-Quality Output Critic Prompt',
-    when:'อยากให้ AI วิจารณ์งานตรงๆ และช่วยยกระดับคุณภาพ',
-    text:`Critique this work like a world-class editor and operator.
-
-Work:
-[paste content/plan/code/idea]
-
-Evaluate:
-1. Clarity
-2. Logic
-3. Completeness
-4. Practicality
-5. Risks
-6. What is missing
-7. What would make this excellent
-
-Be honest and specific.
-Do not just praise it.
-
-Give me:
-- Top 5 problems
-- Exact fixes
-- Improved version if possible`
+    "dept": "KOL & Influencer Campaign / Management",
+    "deptTh": "KOL และ Influencer",
+    "prompts": [
+      {
+        "num": 1,
+        "title": "KOL Selection Prompt",
+        "when": "คัด KOL ให้เหมาะกับเป้าหมาย audience budget และ brand risk",
+        "text": "You are KOL Selection AI for FC Online influencer marketing team.\n\nTask:\nEvaluate and select suitable KOLs or influencers for a campaign.\n\nInputs:\n- Campaign goal:\n[paste goal]\n\n- Candidate KOL list:\n[paste list]\n\n- Audience target:\n[paste audience]\n\n- Budget:\n[paste budget]\n\n- Required deliverables:\n[paste deliverables]\n\nCheck:\n- Audience fit\n- Content fit\n- Engagement quality\n- Gaming credibility\n- Brand safety\n- Cost efficiency\n- Past performance\n- Platform strength\n- Risk of fake engagement\n- Expected impact\n\nRules:\n- Do not select KOLs based on follower count only.\n- Flag brand safety risks.\n- Separate must-hire, consider, and reject.\n- Explain reason clearly.\n\nOutput format:\n## KOL Selection\n## Recommended KOLs\n## Backup KOLs\n## Rejected KOLs\n## Risk Notes\n## Negotiation Notes\n## Final Recommendation",
+        "titleTh": "คัดเลือก KOL"
+      },
+      {
+        "num": 2,
+        "title": "Influencer Brief Prompt",
+        "when": "เขียน brief ให้ influencer เข้าใจ key message และ deliverables",
+        "text": "You are Influencer Brief AI for FC Online KOL campaign team.\n\nTask:\nCreate a clear influencer brief that creators can follow without confusion.\n\nInputs:\n- Campaign:\n[paste campaign]\n\n- Key message:\n[paste message]\n\n- Deliverables:\n[paste deliverables]\n\n- Posting schedule:\n[paste schedule]\n\n- Must mention:\n[paste must mention]\n\n- Must avoid:\n[paste avoid]\n\nCheck:\n- Content objective\n- Creator freedom\n- Required talking points\n- CTA\n- Hashtag / link\n- Approval process\n- Deadline\n- Disclosure requirement\n- Brand safety\n- Tracking method\n\nRules:\n- Do not over-script creators unless required.\n- Do not miss tracking links or promo codes.\n- Do not approve brief if deliverables are vague.\n- Make instructions simple and creator-friendly.\n\nOutput format:\n## Influencer Brief\n## Campaign Objective\n## Key Talking Points\n## Deliverables\n## Content Guidelines\n## Do / Don’t\n## Posting Schedule\n## Tracking\n## Approval Process",
+        "titleTh": "เขียน Brief ให้ Influencer"
+      },
+      {
+        "num": 3,
+        "title": "KOL Outreach Prompt",
+        "when": "ร่างข้อความติดต่อ KOL แบบมืออาชีพและชัดเจน",
+        "text": "You are KOL Partnership Outreach AI for FC Online influencer marketing team.\n\nTask:\nWrite outreach messages to invite KOLs or creators to join a campaign.\n\nInputs:\n- Campaign:\n[paste campaign]\n\n- Creator type:\n[paste type]\n\n- Offer:\n[paste offer]\n\n- Deliverables:\n[paste deliverables]\n\n- Contact channel:\n[paste email / DM / Line]\n\nCheck:\n- Personalization\n- Clear offer\n- Creator benefit\n- Campaign credibility\n- Deliverable clarity\n- Timeline\n- Call to action\n- Tone\n- Negotiation room\n- Follow-up message\n\nRules:\n- Do not sound like spam.\n- Do not overpromise payment or benefits.\n- Keep message short and respectful.\n- Include follow-up version.\n\nOutput format:\n## Outreach Message\n## Short DM Version\n## Email Version\n## Follow-up Message\n## Negotiation Notes",
+        "titleTh": "เขียนข้อความติดต่อ KOL"
+      },
+      {
+        "num": 4,
+        "title": "KOL Content Review Prompt",
+        "when": "ตรวจ content KOL ก่อนโพสต์ว่า on-brief และไม่เสี่ยง",
+        "text": "You are KOL Content Reviewer AI for FC Online influencer campaign team.\n\nTask:\nReview whether influencer content is ready to approve before posting.\n\nInputs:\n- Influencer content draft:\n[paste draft]\n\n- Campaign brief:\n[paste brief]\n\n- Required talking points:\n[paste talking points]\n\n- Do / Don’t:\n[paste rules]\n\n- Posting date:\n[paste date]\n\nCheck:\n- Message accuracy\n- Reward / event correctness\n- CTA\n- Brand safety\n- Disclosure\n- Tone\n- Platform fit\n- Misleading claims\n- Missing required points\n- Posting risk\n\nRules:\n- Do not approve if required talking points are missing.\n- Do not approve if content has wrong date, reward, or CTA.\n- Do not remove creator personality unless it creates risk.\n- Give specific edit instructions.\n\nOutput format:\n## KOL Content Status\nApproved / Changes Requested / Blocked\n\n## What Works\n## Required Edits\n## Risk Notes\n## Final Approval Notes",
+        "titleTh": "รีวิว Content ของ KOL"
+      },
+      {
+        "num": 5,
+        "title": "KOL Performance Review Prompt",
+        "when": "สรุป performance KOL และคำแนะนำต่อ campaign ถัดไป",
+        "text": "You are KOL Performance Analyst AI for FC Online influencer marketing team.\n\nTask:\nAnalyze influencer campaign performance and recommend renewal, optimization, or cancellation.\n\nInputs:\n- KOL list:\n[paste list]\n\n- Deliverables:\n[paste deliverables]\n\n- Performance data:\n[paste data]\n\n- Cost:\n[paste cost]\n\n- Campaign goal:\n[paste goal]\n\nCheck:\n- Reach\n- Engagement\n- Clicks\n- Conversion\n- Cost efficiency\n- Content quality\n- Audience fit\n- Comment sentiment\n- Delivery reliability\n- Renewal potential\n\nRules:\n- Do not judge by views only.\n- Separate content performance from creator reliability.\n- Recommend renew / negotiate / pause / stop.\n- Explain next action for each KOL.\n\nOutput format:\n## KOL Performance Summary\n## Top Performers\n## Underperformers\n## Cost Efficiency\n## Sentiment Notes\n## Renewal Recommendation\n## Next Campaign Action",
+        "titleTh": "สรุปผล Performance ของ KOL"
+      }
+    ]
   }
 ];
-
+let activePantryDept = 0;
+const PANTRY_PROMPTS = PANTRY_GROUPS.flatMap((group, groupIndex) =>
+  group.prompts.map(prompt => ({...prompt, dept: group.dept, deptTh: group.deptTh, groupIndex}))
+);
 function buildPantry(){
+  const tabs = document.getElementById('pantryTabs');
   const grid = document.getElementById('promptGrid');
-  if(!grid) return;
-  grid.innerHTML = PANTRY_PROMPTS.map((p,i)=>`
-    <div class="prompt-card" id="pc-${i}">
-      <div class="prompt-card-head" onclick="togglePrompt(${i})">
-        <div class="prompt-num">${p.num}</div>
-        <div class="prompt-info">
-          <div class="prompt-title">${p.title}</div>
-          <div class="prompt-when">📌 ${p.when}</div>
-        </div>
-        <div class="prompt-toggle" id="pt-${i}">▾</div>
-      </div>
-      <div class="prompt-body" id="pb-${i}">
-        <pre class="prompt-pre">${escH(p.text)}</pre>
-        <div class="prompt-actions">
-          <button class="pa-btn" onclick="copyPrompt(${i},this)">📋 Copy</button>
-          <button class="pa-btn gemini" onclick="copyOpenPrompt(${i},'https://gemini.google.com/app')">✦ Gemini</button>
-          <button class="pa-btn chatgpt" onclick="copyOpenPrompt(${i},'https://chat.openai.com/')">● ChatGPT</button>
-        </div>
-      </div>
-    </div>`).join('');
+  if(!tabs || !grid) return;
+
+  tabs.innerHTML = PANTRY_GROUPS.map(function(group,i){
+    return '<button class="pantry-tab '+(i===activePantryDept?'active':'')+'" onclick="selectPantryDept('+i+')">'
+      + '<span>'+escH(LANG.cur==='th'?group.deptTh:group.dept)+'</span>'
+      + '<span class="pantry-tab-count">'+group.prompts.length+'</span>'
+      + '</button>';
+  }).join('');
+
+  const group = PANTRY_GROUPS[activePantryDept] || PANTRY_GROUPS[0];
+  const offset = PANTRY_GROUPS.slice(0, activePantryDept).reduce(function(sum,item){return sum+item.prompts.length;},0);
+  grid.innerHTML = '<p class="pantry-dept-note"><strong>'+escH(group.deptTh)+'</strong> / '+escH(group.dept)+' - '+group.prompts.length+' prompts</p>'
+    + group.prompts.map(function(p,i){
+      const promptIndex = offset + i;
+      return '<div class="prompt-card" id="pc-'+promptIndex+'">'
+        + '<div class="prompt-card-head" onclick="togglePrompt('+promptIndex+')">'
+        + '<div class="prompt-num">'+p.num+'</div>'
+        + '<div class="prompt-info">'
+        + '<div class="prompt-title">'+escH(LANG.cur==='th'?(p.titleTh||p.title):p.title)+'</div>'
+        + '<div class="prompt-when">'+escH(p.when)+'</div>'
+        + '</div>'
+        + '<div class="prompt-toggle" id="pt-'+promptIndex+'">+</div>'
+        + '</div>'
+        + '<div class="prompt-body" id="pb-'+promptIndex+'">'
+        + '<pre class="prompt-pre">'+escH(p.text)+'</pre>'
+        + '<div class="prompt-actions">'
+        + '<button class="pa-btn" onclick="copyPrompt('+promptIndex+',this)">Copy</button>'
+        + "<button class=\"pa-btn gemini\" onclick=\"copyOpenPrompt("+promptIndex+",'https://gemini.google.com/app')\">Gemini</button>"
+        + "<button class=\"pa-btn chatgpt\" onclick=\"copyOpenPrompt("+promptIndex+",'https://chat.openai.com/')\">ChatGPT</button>"
+        + '</div></div></div>';
+    }).join('');
+}
+
+function selectPantryDept(i){
+  activePantryDept = i;
+  buildPantry();
 }
 
 function togglePrompt(i){
   const card=document.getElementById('pc-'+i);
   const body=document.getElementById('pb-'+i);
   const tog=document.getElementById('pt-'+i);
+  if(!card || !body || !tog) return;
   const isOpen=card.classList.toggle('open');
   body.style.maxHeight=isOpen?body.scrollHeight+40+'px':'0';
-  tog.textContent=isOpen?'▴':'▾';
+  tog.textContent=isOpen?'−':'+';
 }
 
 function copyPrompt(i,btn){
-  copyText(PANTRY_PROMPTS[i].text, null);
-  // ── Log pantry copy event ──
-  logEvent(`Pantry #${PANTRY_PROMPTS[i].num} ${PANTRY_PROMPTS[i].title}`, 'Copy');
+  const prompt = PANTRY_PROMPTS[i];
+  if(!prompt) return;
+  copyText(prompt.text, null);
+  logEvent('Pantry', 'Copy', pantryPromptMeta(prompt, 'Clipboard'));
   btn.classList.add('copied');
-  btn.textContent='✓ Copied!';
-  setTimeout(()=>{btn.classList.remove('copied');btn.textContent='📋 Copy';},1800);
+  btn.textContent='Copied!';
+  setTimeout(()=>{btn.classList.remove('copied');btn.textContent='Copy';},1800);
 }
 function copyOpenPrompt(i,url){
-  copyText(PANTRY_PROMPTS[i].text, null);
+  const prompt = PANTRY_PROMPTS[i];
+  if(!prompt) return;
+  copyText(prompt.text, null);
+  logEvent('Pantry', 'Copy & Open', pantryPromptMeta(prompt, destinationFromUrl(url)));
   setTimeout(()=>window.open(url,'_blank'),150);
-  showToast('Copied — opening…');
+  showToast('Copied - opening...');
 }
 
 // Pantry open/close
