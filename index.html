@@ -243,6 +243,149 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
   .brand-name{font-size:15px}
   .zone-scene{height:110px}
 }
+
+/* PANTRY BAR */
+.pantry{
+  margin-top:14px;background:var(--paper);
+  border:1.5px dashed var(--line);border-radius:14px;
+  padding:14px 18px;display:flex;align-items:center;gap:12px;
+  color:var(--ink-2);font-size:13px;cursor:pointer;
+  transition:border-color .18s,background .18s,transform .18s;
+}
+.pantry:hover{border-color:var(--tyga);background:var(--tyga-s);transform:translateY(-2px)}
+.pantry-text{flex:1}
+.pantry-badge{
+  background:var(--ink);color:var(--paper);
+  padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;flex-shrink:0
+}
+
+/* PANTRY SCRIM */
+.pantry-scrim{
+  position:fixed;inset:0;background:rgba(42,38,32,.45);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:98
+}
+.pantry-scrim.on{opacity:1;pointer-events:auto}
+
+/* PANTRY MODAL */
+.pantry-modal{
+  position:fixed;bottom:0;left:0;right:0;
+  height:88dvh;
+  background:var(--paper);z-index:99;
+  border-radius:24px 24px 0 0;
+  transform:translateY(102%);
+  transition:transform .34s cubic-bezier(.2,.8,.2,1);
+  display:flex;flex-direction:column;
+  box-shadow:0 -16px 60px rgba(42,38,32,.22)
+}
+.pantry-modal.on{transform:translateY(0)}
+.pantry-modal-handle{
+  width:38px;height:4px;background:var(--line);
+  border-radius:999px;margin:12px auto 0;flex-shrink:0
+}
+.pantry-modal-head{
+  padding:16px 22px 14px;border-bottom:1px solid var(--line);
+  background:linear-gradient(135deg,var(--tyga-s) 0%,transparent 60%);
+  position:relative;flex-shrink:0
+}
+.pantry-modal-title-row{display:flex;align-items:center;gap:12px}
+.pantry-modal-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;line-height:1.1;margin:0}
+.pantry-modal-sub{font-size:12.5px;color:var(--ink-2);margin:2px 0 0}
+.pantry-close{
+  position:absolute;top:16px;right:16px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--paper);border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--ink);
+  cursor:pointer;transition:all .18s
+}
+.pantry-close:hover{background:var(--ink);color:var(--paper)}
+
+/* Formula banner */
+.pantry-formula{
+  flex-shrink:0;
+  padding:10px 22px;
+  background:linear-gradient(90deg,#fdf3e8,var(--paper));
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap
+}
+.formula-label{font-size:12px;font-weight:700;color:var(--tyga-d);white-space:nowrap}
+.pantry-formula code{
+  font-size:12px;color:var(--ink-2);
+  background:rgba(42,38,32,.06);
+  padding:4px 10px;border-radius:7px;
+  font-family:'Plus Jakarta Sans',monospace
+}
+
+/* Prompt body */
+.pantry-body{flex:1;overflow-y:auto;padding:18px 22px 32px;-webkit-overflow-scrolling:touch}
+.pantry-body::-webkit-scrollbar{width:6px}
+.pantry-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px}
+
+/* Prompt grid */
+.prompt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+@media(max-width:640px){.prompt-grid{grid-template-columns:1fr}}
+
+/* Prompt card */
+.prompt-card{
+  background:var(--paper);border:1.5px solid var(--line);
+  border-radius:14px;overflow:hidden;
+  transition:border-color .18s,box-shadow .18s,transform .18s
+}
+.prompt-card:hover{border-color:var(--tyga);transform:translateY(-2px);box-shadow:var(--sh)}
+.prompt-card-head{
+  padding:13px 16px 10px;cursor:pointer;
+  display:flex;align-items:flex-start;gap:10px
+}
+.prompt-num{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--tyga-s);color:var(--tyga-d);
+  display:grid;place-items:center;
+  font-size:12px;font-weight:700;flex-shrink:0
+}
+.prompt-info{flex:1;min-width:0}
+.prompt-title{font-family:'Fraunces',serif;font-size:15px;font-weight:700;line-height:1.2;color:var(--ink)}
+.prompt-when{
+  font-size:11px;color:var(--ink-2);margin-top:3px;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+}
+.prompt-toggle{
+  width:24px;height:24px;border-radius:6px;
+  background:var(--paper);border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--ink-2);
+  cursor:pointer;flex-shrink:0;transition:all .18s;font-size:11px
+}
+.prompt-card.open .prompt-toggle{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* Prompt text */
+.prompt-body{
+  max-height:0;overflow:hidden;
+  transition:max-height .3s ease
+}
+.prompt-card.open .prompt-body{max-height:600px}
+.prompt-pre{
+  font-family:'Fraunces',Georgia,serif;font-size:12.5px;line-height:1.6;
+  color:var(--ink);background:rgba(42,38,32,.03);
+  padding:12px 16px;white-space:pre-wrap;word-wrap:break-word;
+  border-top:1px solid var(--line);max-height:220px;overflow-y:auto
+}
+.prompt-actions{
+  padding:9px 14px;border-top:1px solid var(--line);
+  display:flex;gap:7px;flex-wrap:wrap;
+  background:linear-gradient(180deg,transparent,var(--tyga-s))
+}
+.pa-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  border:1.5px solid var(--line);background:var(--paper);
+  border-radius:999px;padding:5px 12px;
+  font:inherit;font-size:12px;font-weight:600;color:var(--ink);
+  cursor:pointer;transition:all .15s;white-space:nowrap
+}
+.pa-btn:hover{border-color:var(--ink)}
+.pa-btn.copied{background:#4db86a;color:#fff;border-color:#4db86a}
+.pa-btn.gemini{border-color:#4285f4;color:#4285f4}
+.pa-btn.gemini:hover{background:#4285f4;color:#fff}
+.pa-btn.chatgpt{border-color:#10a37f;color:#10a37f}
+.pa-btn.chatgpt:hover{background:#10a37f;color:#fff}
 </style>
 </head>
 <body>
@@ -372,11 +515,42 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 
   </div>
 
-  <div class="pantry">
+  <div class="pantry" id="pantryBar">
     <span style="font-size:20px">☕</span>
-    <span><strong data-en="The Pantry" data-th="แพนทรี">The Pantry</strong><span data-en=" — saved prompts library. Coming soon." data-th=" — คลังพรอมต์. เร็วๆ นี้"> — saved prompts library. Coming soon.</span></span>
+    <div class="pantry-text">
+      <strong data-en="The Pantry" data-th="แพนทรี">The Pantry</strong>
+      <span data-en=" — 10 ready-to-use AI prompts. Click to open." data-th=" — 10 พรอมต์สำเร็จรูป คลิกเพื่อเปิด"> — 10 ready-to-use AI prompts. Click to open.</span>
+    </div>
+    <span class="pantry-badge">10 prompts</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-left:auto;opacity:.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
   </div>
 </main>
+
+<!-- PANTRY MODAL -->
+<div class="pantry-scrim" id="pantryScrim"></div>
+<div class="pantry-modal" id="pantryModal">
+  <div class="pantry-modal-handle"></div>
+  <header class="pantry-modal-head">
+    <div class="pantry-modal-title-row">
+      <span style="font-size:22px">☕</span>
+      <div>
+        <h2 class="pantry-modal-title" data-en="The Pantry" data-th="แพนทรี">The Pantry</h2>
+        <p class="pantry-modal-sub" data-en="10 best ready-to-use AI prompts — click any card to copy & use" data-th="10 พรอมต์ AI สำเร็จรูปที่ดีที่สุด — คลิกที่การ์ดเพื่อ copy และใช้งาน">10 best ready-to-use AI prompts — click any card to copy & use</p>
+      </div>
+    </div>
+    <button class="pantry-close" id="pantryClose"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </header>
+
+  <!-- Formula banner -->
+  <div class="pantry-formula">
+    <span class="formula-label">📐 <span data-en="Master Formula" data-th="สูตรหลัก">Master Formula</span></span>
+    <code>Goal + Context + Constraints + Output Format + Quality Bar</code>
+  </div>
+
+  <div class="pantry-body" id="pantryBody">
+    <div class="prompt-grid" id="promptGrid"></div>
+  </div>
+</div>
 
 <!-- SCRIM + DRAWER -->
 <div class="scrim" id="scrim"></div>
@@ -663,12 +837,12 @@ const AGENTS={
     role:{en:'Creative Strategist',th:'นักวางกลยุทธ์ครีเอทีฟ'},
     greet:{en:"Meow! Got an idea spark? Let's brainstorm! 🧡",th:'เมี๊ยว! มีไอเดียอะไรในใจไหม? เดี๋ยวระดมให้เลย 🧡'},
     fields:[
-      {id:'product',label:{en:'Brand / product',th:'แบรนด์ / สินค้า'},type:'text',ph:{en:'e.g. oat milk brand',th:'เช่น แบรนด์โอ๊ตมิลค์'},req:true},
-      {id:'objective',label:{en:'Campaign objective',th:'วัตถุประสงค์'},type:'select',opts:[{v:'awareness',en:'Awareness',th:'สร้างการรับรู้'},{v:'conversion',en:'Conversion',th:'กระตุ้นยอดขาย'},{v:'retention',en:'Retention',th:'รักษาฐานลูกค้า'},{v:'launch',en:'New launch',th:'เปิดตัวสินค้าใหม่'}]},
-      {id:'audience',label:{en:'Target audience',th:'กลุ่มเป้าหมาย'},type:'text',ph:{en:'Gen Z office workers, Bangkok',th:'Gen Z พนักงานออฟฟิศ กรุงเทพฯ'},req:true},
-      {id:'channels',label:{en:'Channels',th:'ช่องทาง'},type:'chips',opts:['TikTok','IG Reels','IG Feed','Facebook','LINE OA','YouTube','OOH']},
-      {id:'tone',label:{en:'Tone',th:'โทน'},type:'text',ph:{en:'playful, slightly cheeky',th:'สนุก แอบกวน'}},
-      {id:'period',label:{en:'Campaign period',th:'ระยะเวลา'},type:'text',ph:{en:'June – July 2026',th:'มิ.ย. – ก.ค. 2026'}},
+      {id:'product',label:{en:'Brand / product',th:'แบรนด์ / สินค้า'},type:'text',ph:{en:'EA SPORTS FC Online Thailand',th:'EA SPORTS FC Online Thailand'},req:true},
+      {id:'objective',label:{en:'Campaign objective',th:'วัตถุประสงค์'},type:'select',opts:[{v:'awareness',en:'Awareness',th:'สร้างการรับรู้'},{v:'conversion',en:'Conversion / New installs',th:'ดึงผู้เล่นใหม่'},{v:'retention',en:'Retention / Re-engage',th:'ดึงผู้เล่นเก่ากลับมา'},{v:'launch',en:'Season / Feature launch',th:'เปิดตัวซีซันใหม่'}]},
+      {id:'audience',label:{en:'Target audience',th:'กลุ่มเป้าหมาย'},type:'text',ph:{en:'male gamers 15–28, football fans, PC/mobile players nationwide',th:'เกมเมอร์ชาย 15–28 ปี ชอบฟุตบอล เล่น PC ทั่วประเทศ'},req:true},
+      {id:'channels',label:{en:'Channels',th:'ช่องทาง'},type:'chips',opts:['TikTok','YouTube','Facebook','IG Reels','LINE OA','Twitch / Stream','Discord','OOH']},
+      {id:'tone',label:{en:'Tone',th:'โทน'},type:'text',ph:{en:'hype, energetic, gamer-speak, competitive',th:'มันส์ เร้าใจ พูดภาษาเกมเมอร์ แข่งขัน'}},
+      {id:'period',label:{en:'Campaign period',th:'ระยะเวลา'},type:'text',ph:{en:'FC Online Pro League Summer 2026 (Jun – Aug)',th:'ซีซัน Summer 2026 (มิ.ย. – ส.ค.)'}},
       {id:'budget',label:{en:'Budget',th:'งบ'},type:'chips',single:true,opts:[{v:'Low',en:'Low',th:'ต่ำ'},{v:'Mid',en:'Mid',th:'กลาง'},{v:'High',en:'High',th:'สูง'}]},
       {id:'language',label:{en:'Output language',th:'ภาษาผลลัพธ์'},type:'chips',single:true,opts:[{v:'TH',en:'Thai',th:'ไทย'},{v:'EN',en:'English',th:'อังกฤษ'},{v:'Bilingual',en:'Bilingual',th:'สองภาษา'}]},
       {id:'count',label:{en:'Number of ideas',th:'จำนวนไอเดีย'},type:'number',val:8},
@@ -701,14 +875,14 @@ End with: top 3 recommended ideas + reasoning.`
     role:{en:'Creative Producer',th:'โปรดิวเซอร์ครีเอทีฟ'},
     greet:{en:"Purr... let's get this brief watertight 💜",th:'เป็นๆ มาทำบรีฟให้แน่นกันก่อนส่งดีไซน์เนอร์นะ 💜'},
     fields:[
-      {id:'campaign',label:{en:'Campaign name',th:'ชื่อแคมเปญ'},type:'text',ph:{en:'Summer Splash 2026',th:'Summer Splash 2026'},req:true},
-      {id:'objective',label:{en:'Objective',th:'วัตถุประสงค์'},type:'text',ph:{en:'drive trial of new SPF range',th:'กระตุ้นทดลองใช้ครีมกันแดดใหม่'}},
-      {id:'audience',label:{en:'Audience',th:'กลุ่มเป้าหมาย'},type:'text',ph:{en:'women 22–35, beauty-conscious',th:'ผู้หญิง 22–35 รักสวยรักผิว'}},
-      {id:'message',label:{en:'Key message',th:'คีย์เมสเซจ'},type:'textarea',ph:{en:'Bright, beachy, breezy.',th:'สดใส ฉ่ำหน้าร้อน ผ่อนคลาย'}},
-      {id:'mood',label:{en:'Visual direction / mood',th:'ทิศทางภาพ / มู้ด'},type:'textarea',ph:{en:'editorial, sun-drenched, pastel beach palette',th:'editorial, แดดอุ่น, สีพาสเทลทะเล'}},
-      {id:'formats',label:{en:'Required formats',th:'ฟอร์แมตที่ต้องการ'},type:'chips',opts:['IG 1:1','IG Story 9:16','TikTok 9:16','KV / hero','FB cover','LINE OA banner','Web banner']},
-      {id:'deadline',label:{en:'Deadline',th:'เดดไลน์'},type:'text',ph:{en:'20 May 2026',th:'20 พ.ค. 2026'}},
-      {id:'assets',label:{en:'Required assets',th:'แอสเสตที่ต้องใช้'},type:'textarea',ph:{en:'logo, 3 product shots, talent',th:'โลโก้, ภาพสินค้า 3 มุม, talent'}},
+      {id:'campaign',label:{en:'Campaign name',th:'ชื่อแคมเปญ'},type:'text',ph:{en:'FC Online Pro League Summer 2026',th:'FC Online Pro League Summer 2026'},req:true},
+      {id:'objective',label:{en:'Objective',th:'วัตถุประสงค์'},type:'text',ph:{en:'drive new player installs + re-engage lapsed players',th:'ดึงผู้เล่นใหม่ดาวน์โหลด + ผู้เล่นเก่ากลับมาเล่น'}},
+      {id:'audience',label:{en:'Audience',th:'กลุ่มเป้าหมาย'},type:'text',ph:{en:'football gamers male 15–30, PC & mobile, nationwide Thailand',th:'เกมเมอร์ฟุตบอล ชาย 15–30 ปี PC และมือถือ ทั่วประเทศ'}},
+      {id:'message',label:{en:'Key message',th:'คีย์เมสเซจ'},type:'textarea',ph:{en:'New Season, New Cards — build your dream squad. Free to play, impossible to put down.',th:'ซีซันใหม่ การ์ดใหม่ — สร้างทีมในฝัน โหลดฟรี มันส์ไม่หยุด'}},
+      {id:'mood',label:{en:'Visual direction / mood',th:'ทิศทางภาพ / มู้ด'},type:'textarea',ph:{en:'intense esports energy, stadium floodlights, dark navy + electric yellow, dynamic player card motion graphics',th:'พลังงาน esports เข้มข้น สนามไฟสปอตไลท์ น้ำเงินเข้ม + เหลืองนีออน การ์ดผู้เล่นเคลื่อนไหว'}},
+      {id:'formats',label:{en:'Required formats',th:'ฟอร์แมตที่ต้องการ'},type:'chips',opts:['IG 1:1','IG Story 9:16','TikTok 9:16','YouTube Thumbnail','KV / hero','FB cover','LINE OA banner','Web banner']},
+      {id:'deadline',label:{en:'Deadline',th:'เดดไลน์'},type:'text',ph:{en:'10 June 2026 (before Pro League kick-off)',th:'10 มิ.ย. 2026 (ก่อน Pro League เปิดฤดูกาล)'}},
+      {id:'assets',label:{en:'Required assets',th:'แอสเสตที่ต้องใช้'},type:'textarea',ph:{en:'FC Online logo, Pro League player cards, match highlight reels, Garena logo, pro player portraits',th:'โลโก้ FC Online, การ์ดผู้เล่น Pro League, highlight รีล, โลโก้ Garena, ภาพโปรเพลเยอร์'}},
     ],
     handoff:['mango','nova'],
     tpl:(v)=>`You are Mello, a creative producer writing a designer-ready brief.
@@ -740,12 +914,12 @@ Format as a scannable brief with sections:
     role:{en:'Deck Architect',th:'สถาปนิกพรีเซนเทชัน'},
     greet:{en:"Ready to build a killer deck? Let's go! 💙",th:'พร้อมสร้างสไลด์ขั้นเทพ! ไปเลย 💙'},
     fields:[
-      {id:'topic',label:{en:'Presentation topic',th:'หัวข้อพรีเซนต์'},type:'text',ph:{en:'Q3 influencer campaign proposal',th:'ข้อเสนอแคมเปญ KOL Q3'},req:true},
-      {id:'audience',label:{en:'Audience',th:'ผู้ฟัง'},type:'chips',single:true,opts:[{v:'Internal team',en:'Internal team',th:'ทีมภายใน'},{v:'Client',en:'Client',th:'ลูกค้า'},{v:'Executive',en:'Executive',th:'ผู้บริหาร'},{v:'Public',en:'Public',th:'สาธารณะ'}]},
+      {id:'topic',label:{en:'Presentation topic',th:'หัวข้อพรีเซนต์'},type:'text',ph:{en:'FC Online Pro League Summer 2026 — Sponsorship Proposal',th:'FC Online Pro League Summer 2026 — ข้อเสนอสปอนเซอร์'},req:true},
+      {id:'audience',label:{en:'Audience',th:'ผู้ฟัง'},type:'chips',single:true,opts:[{v:'Internal team',en:'Internal team',th:'ทีมภายใน'},{v:'Client',en:'Sponsor / Client',th:'สปอนเซอร์ / ลูกค้า'},{v:'Executive',en:'Executive / C-level',th:'ผู้บริหาร'},{v:'Public',en:'Press / Public',th:'สื่อ / สาธารณะ'}]},
       {id:'objective',label:{en:'Deck objective',th:'วัตถุประสงค์'},type:'chips',single:true,opts:[{v:'Persuade',en:'Persuade',th:'โน้มน้าว'},{v:'Inform',en:'Inform',th:'ให้ข้อมูล'},{v:'Sell',en:'Sell / pitch',th:'พิตช์ขาย'},{v:'Align',en:'Align',th:'สร้างความเข้าใจร่วม'}]},
       {id:'slides',label:{en:'Number of slides',th:'จำนวนสไลด์'},type:'number',val:12},
-      {id:'tone',label:{en:'Tone',th:'โทน'},type:'text',ph:{en:'confident, data-led',th:'มั่นใจ ใช้ข้อมูลนำ'}},
-      {id:'points',label:{en:'Key points to cover',th:'ประเด็นสำคัญ'},type:'textarea',ph:{en:'market insight, big idea, KOL list, timeline, budget, KPIs',th:'อินไซต์ตลาด, big idea, KOL, ไทม์ไลน์, งบ, KPI'}},
+      {id:'tone',label:{en:'Tone',th:'โทน'},type:'text',ph:{en:'bold, data-driven, esports-confident',th:'กล้า ใช้ข้อมูลนำ สไตล์ esports'}},
+      {id:'points',label:{en:'Key points to cover',th:'ประเด็นสำคัญ'},type:'textarea',ph:{en:'Thai esports market size, FC Online player base 2M+, Pro League viewership stats, Summer 2026 season schedule, sponsorship tiers & benefits, YouTube / TikTok reach, KPIs & ROI',th:'ขนาดตลาด esports ไทย, ฐานผู้เล่น FC Online 2M+, ยอดชม Pro League, กำหนดการซีซัน Summer 2026, แพ็กเกจสปอนเซอร์, reach YouTube/TikTok, KPI และ ROI'}},
       {id:'time',label:{en:'Talk time (min)',th:'เวลา (นาที)'},type:'number',val:15},
       {id:'language',label:{en:'Language',th:'ภาษา'},type:'chips',single:true,opts:[{v:'TH',en:'Thai',th:'ไทย'},{v:'EN',en:'English',th:'อังกฤษ'},{v:'EN + TH notes',en:'EN deck + TH speaker notes',th:'สไลด์ EN + notes ไทย'}]},
     ],
@@ -776,12 +950,12 @@ End with a one-line storyline summary.`
     role:{en:'Insight Analyst',th:'นักวิเคราะห์อินไซต์'},
     greet:{en:"I'm all ears (and headphones)! Drop those comments 💚",th:'ฟังอยู่ทุกอย่าง! ส่งคอมเมนต์มาเลย 💚'},
     fields:[
-      {id:'sources',label:{en:'Source(s)',th:'แหล่งที่มา'},type:'chips',opts:['Facebook','Instagram','TikTok','LINE OA','X/Twitter','Survey','Support tickets']},
-      {id:'context',label:{en:'Campaign / product context',th:'แคมเปญ / สินค้า'},type:'text',ph:{en:'Summer Splash 2026 launch',th:'เปิดตัว Summer Splash 2026'},req:true},
-      {id:'period',label:{en:'Time range',th:'ช่วงเวลา'},type:'text',ph:{en:'April 1–30, 2026',th:'1–30 เม.ย. 2026'}},
+      {id:'sources',label:{en:'Source(s)',th:'แหล่งที่มา'},type:'chips',opts:['Facebook','YouTube comments','TikTok','Discord','X/Twitter','LINE OA','In-game survey','Support tickets']},
+      {id:'context',label:{en:'Campaign / product context',th:'แคมเปญ / สินค้า'},type:'text',ph:{en:'FC Online Pro League Summer 2026 season launch',th:'เปิดฤดูกาล FC Online Pro League Summer 2026'},req:true},
+      {id:'period',label:{en:'Time range',th:'ช่วงเวลา'},type:'text',ph:{en:'June 1–30, 2026 (first month of Summer season)',th:'1–30 มิ.ย. 2026 (เดือนแรกของซีซัน Summer)'}},
       {id:'languages',label:{en:'Comment language(s)',th:'ภาษาในคอมเมนต์'},type:'chips',opts:['TH','EN','Mixed TH/EN']},
-      {id:'themes',label:{en:'Custom themes (optional)',th:'ธีมพิเศษ (ถ้ามี)'},type:'text',ph:{en:'pricing, scent, packaging',th:'ราคา, กลิ่น, แพ็กเกจ'}},
-      {id:'comments',label:{en:'Raw comments / feedback',th:'คอมเมนต์ดิบ'},hint:{en:'Paste comments here. One per line works best.',th:'วางคอมเมนต์ตรงนี้ คอมเมนต์ละ 1 บรรทัด'},type:'textarea',ph:{en:'Paste comments here…',th:'วางคอมเมนต์ตรงนี้…'},req:true},
+      {id:'themes',label:{en:'Custom themes (optional)',th:'ธีมพิเศษ (ถ้ามี)'},type:'text',ph:{en:'gameplay balance, player card pricing, server lag, new season cards, anti-cheat, Pro League hype',th:'ความสมดุลเกม, ราคาการ์ด, server แลค, การ์ดซีซันใหม่, ระบบแบน, กระแส Pro League'}},
+      {id:'comments',label:{en:'Raw comments / feedback',th:'คอมเมนต์ดิบ'},hint:{en:'Paste FC Online community comments here. One per line works best.',th:'วางคอมเมนต์จากคอมมูนิตี้ FC Online ตรงนี้ คอมเมนต์ละ 1 บรรทัด'},type:'textarea',ph:{en:'Paste comments here…',th:'วางคอมเมนต์ตรงนี้…'},req:true},
     ],
     handoff:['mango'],
     tpl:(v)=>`You are Echo, a community insight analyst.
@@ -959,11 +1133,302 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function escH(s){return esc(s);}
 
 /* ─────────── INIT ─────────── */
+/* ─────────── PANTRY ─────────── */
+const PANTRY_PROMPTS = [
+  {
+    num:1, title:'Master Thinking Prompt',
+    when:'ต้องการคิดให้ลึกขึ้น แก้ปัญหาซับซ้อน หรือหาทางเลือกที่ดีที่สุด',
+    text:`You are my strategic thinking partner.
+
+Goal: Help me solve [problem].
+Context: [give background, current situation, constraints].
+
+Your task:
+1. Identify the real root cause.
+2. Separate facts, assumptions, and unknowns.
+3. Give me 3 possible solutions.
+4. Recommend the best option with reasoning.
+5. List risks, edge cases, and next actions.
+
+Output format:
+- Root cause
+- Options
+- Recommendation
+- Risks
+- Next 3 actions
+
+Be direct, practical, and do not over-explain.`
+  },
+  {
+    num:2, title:'CEO Decision Prompt',
+    when:'ต้องตัดสินใจเรื่องธุรกิจ งาน เงิน ทีม หรือทิศทางสำคัญ',
+    text:`Act as a clear, practical CEO advisor.
+
+I need to decide: [decision].
+Context: [details].
+Constraints: [money/time/team/legal/technical limits].
+
+Analyze this like an executive:
+- What matters most?
+- What is noise?
+- What are the tradeoffs?
+- What is the cost of waiting?
+- What decision would you make today?
+
+Give me:
+1. Recommended decision
+2. Why
+3. What could go wrong
+4. How to reduce risk
+5. First action to take`
+  },
+  {
+    num:3, title:'Deep Research Prompt',
+    when:'ต้องการ research ที่ไม่มั่ว แยก fact ออกจาก opinion',
+    text:`Research [topic] for me.
+
+Use only reliable and current sources if browsing is available.
+
+Separate:
+- Confirmed facts
+- Expert opinions
+- Unclear or disputed points
+- Practical implications
+
+Output:
+1. Executive summary
+2. Key findings
+3. Important numbers or examples
+4. Risks or limitations
+5. My best next move
+
+Keep it concise but complete.`
+  },
+  {
+    num:4, title:'Learning Anything Fast Prompt',
+    when:'อยากเรียนเรื่องใหม่เร็วๆ แบบเข้าใจและนำไปใช้ได้จริง',
+    text:`Teach me [topic] from zero to practical level.
+
+My current level: [beginner/intermediate/advanced].
+My goal: [what I want to do with it].
+Time available: [time].
+
+Create:
+1. Simple explanation
+2. Mental model
+3. Key concepts
+4. Common mistakes
+5. Practice exercises
+6. 7-day learning plan
+
+Use examples, not theory only.`
+  },
+  {
+    num:5, title:'Better Writing Prompt',
+    when:'เขียนโพสต์ อีเมล proposal caption sales page หรือข้อความสำคัญ',
+    text:`Rewrite this text for [audience] with the goal of [goal].
+
+Text:
+[paste text]
+
+Tone: [clear/professional/friendly/persuasive/direct].
+
+Constraints:
+- Keep the meaning
+- Remove fluff
+- Make it easier to read
+- Improve structure
+- Do not make it sound artificial
+
+Give me 3 versions:
+1. Short version
+2. Polished version
+3. Strong persuasive version`
+  },
+  {
+    num:6, title:'Business Idea Validator Prompt',
+    when:'มีไอเดียธุรกิจ สินค้า คอร์ส startup หรือบริการใหม่',
+    text:`Evaluate this business idea brutally but constructively.
+
+Idea: [business idea]
+Target customer: [customer]
+Problem solved: [problem]
+Business model: [how it makes money]
+
+Analyze:
+1. Is the problem painful enough?
+2. Who exactly pays?
+3. Why now?
+4. Competition
+5. Distribution strategy
+6. Main risks
+7. Fastest validation test
+
+End with:
+- Score out of 10
+- Go / No-go / Modify
+- Best next experiment`
+  },
+  {
+    num:7, title:'Prompt Optimizer Prompt',
+    when:'มี prompt อยู่แล้ว แต่อยากให้คมขึ้น ใช้ซ้ำได้ และได้ผลลัพธ์ดีขึ้น',
+    text:`You are an expert prompt engineer.
+
+Improve this prompt:
+[paste prompt]
+
+Your task:
+1. Identify what is unclear or weak.
+2. Rewrite it into a stronger prompt.
+3. Add missing context, constraints, and output format.
+4. Make it reusable as a template.
+5. Explain briefly why the new version is better.
+
+Output:
+- Problems in original prompt
+- Improved prompt
+- Optional advanced version`
+  },
+  {
+    num:8, title:'Coding / Technical Builder Prompt',
+    when:'เขียนโค้ด แก้ bug ออกแบบ feature หรือ review technical approach',
+    text:`You are a senior software engineer.
+
+Task: Build or fix [feature/problem].
+Context: [tech stack, files, requirements].
+Constraints: [performance/security/UI/API/backward compatibility].
+
+Before coding:
+1. Explain the likely root cause or implementation approach.
+2. Identify affected files/modules.
+3. Point out risks.
+
+Then provide:
+- Minimal solution
+- Code changes
+- Tests or verification steps
+- Edge cases to check
+
+Keep the solution simple and avoid unnecessary refactoring.`
+  },
+  {
+    num:9, title:'Personal Productivity System Prompt',
+    when:'งานเยอะ ความคิดเยอะ ไม่รู้จะเริ่มจากอะไร',
+    text:`Act as my operations assistant.
+
+Here is everything on my mind:
+[paste tasks, ideas, obligations]
+
+Organize it into:
+1. Must do today
+2. Should schedule
+3. Can delegate
+4. Can delete
+5. Needs clarification
+
+Then create:
+- A realistic plan for today
+- A 7-day plan
+- The single highest-leverage action
+- What I should stop doing`
+  },
+  {
+    num:10, title:'High-Quality Output Critic Prompt',
+    when:'อยากให้ AI วิจารณ์งานตรงๆ และช่วยยกระดับคุณภาพ',
+    text:`Critique this work like a world-class editor and operator.
+
+Work:
+[paste content/plan/code/idea]
+
+Evaluate:
+1. Clarity
+2. Logic
+3. Completeness
+4. Practicality
+5. Risks
+6. What is missing
+7. What would make this excellent
+
+Be honest and specific.
+Do not just praise it.
+
+Give me:
+- Top 5 problems
+- Exact fixes
+- Improved version if possible`
+  }
+];
+
+function buildPantry(){
+  const grid = document.getElementById('promptGrid');
+  if(!grid) return;
+  grid.innerHTML = PANTRY_PROMPTS.map((p,i)=>`
+    <div class="prompt-card" id="pc-${i}">
+      <div class="prompt-card-head" onclick="togglePrompt(${i})">
+        <div class="prompt-num">${p.num}</div>
+        <div class="prompt-info">
+          <div class="prompt-title">${p.title}</div>
+          <div class="prompt-when">📌 ${p.when}</div>
+        </div>
+        <div class="prompt-toggle" id="pt-${i}">▾</div>
+      </div>
+      <div class="prompt-body" id="pb-${i}">
+        <pre class="prompt-pre">${escH(p.text)}</pre>
+        <div class="prompt-actions">
+          <button class="pa-btn" onclick="copyPrompt(${i},this)">📋 Copy</button>
+          <button class="pa-btn gemini" onclick="copyOpenPrompt(${i},'https://gemini.google.com/app')">✦ Gemini</button>
+          <button class="pa-btn chatgpt" onclick="copyOpenPrompt(${i},'https://chat.openai.com/')">● ChatGPT</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function togglePrompt(i){
+  const card=document.getElementById('pc-'+i);
+  const body=document.getElementById('pb-'+i);
+  const tog=document.getElementById('pt-'+i);
+  const isOpen=card.classList.toggle('open');
+  body.style.maxHeight=isOpen?body.scrollHeight+40+'px':'0';
+  tog.textContent=isOpen?'▴':'▾';
+}
+
+function copyPrompt(i,btn){
+  copyText(PANTRY_PROMPTS[i].text, null);
+  btn.classList.add('copied');
+  btn.textContent='✓ Copied!';
+  setTimeout(()=>{btn.classList.remove('copied');btn.textContent='📋 Copy';},1800);
+}
+function copyOpenPrompt(i,url){
+  copyText(PANTRY_PROMPTS[i].text, null);
+  setTimeout(()=>window.open(url,'_blank'),150);
+  showToast('Copied — opening…');
+}
+
+// Pantry open/close
+const pantryBar=document.getElementById('pantryBar');
+const pantryScrim=document.getElementById('pantryScrim');
+const pantryModal=document.getElementById('pantryModal');
+const pantryClose=document.getElementById('pantryClose');
+
+pantryBar.addEventListener('click',openPantry);
+pantryScrim.addEventListener('click',closePantry);
+pantryClose.addEventListener('click',closePantry);
+
+function openPantry(){
+  buildPantry();
+  pantryModal.classList.add('on');
+  pantryScrim.classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closePantry(){
+  pantryModal.classList.remove('on');
+  pantryScrim.classList.remove('on');
+  document.body.style.overflow='';
+}
+
 applyLang();
 setupCats();
 requestAnimationFrame(animateCats);
-
-// Re-setup on resize
 window.addEventListener('resize',()=>{
   for(const[id,w] of Object.entries(walkers)){
     const scene=w.el?.closest('.zone-scene');
