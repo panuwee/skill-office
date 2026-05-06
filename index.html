@@ -657,145 +657,160 @@ const LANG={cur:'en'};
 const STATE={};
 let CUR=null;
 
-        { v: 'Approve budget', en: 'Approve budget', th: 'ขออนุมัติงบ' }
-      ] },
-      { id: 'context', label: { en: 'Business context / problem', th: 'บริบทธุรกิจ / ปัญหา' }, type: 'textarea', ph: { en: 'Ranked participation is stable but lapsed players need a stronger reason to return during football peak season.', th: 'ผู้เล่นแรงก์ทรงตัว แต่ผู้เล่นที่หายไปยังต้องมีเหตุผลที่แรงขึ้นในการกลับมาในช่วงฟุตบอลพีกซีซัน' } },
-      { id: 'proposal', label: { en: 'Proposed idea / plan', th: 'ไอเดีย / แผนที่เสนอ' }, type: 'textarea', ph: { en: 'A 4-week matchday mission campaign with creator squads, weekly rewards, livestream challenges, and in-game missions.', th: 'แคมเปญ matchday mission 4 สัปดาห์ มีทีมครีเอเตอร์ รางวัลรายสัปดาห์ ไลฟ์ชาเลนจ์ และภารกิจในเกม' } },
-      { id: 'slides', label: { en: 'Number of slides', th: 'จำนวนสไลด์' }, type: 'number', val: 12 },
-      { id: 'tone', label: { en: 'Tone', th: 'โทน' }, type: 'text', ph: { en: 'executive, data-led, confident, football-savvy', th: 'มืออาชีพ ใช้ข้อมูลนำ มั่นใจ เข้าใจฟุตบอล' } },
-      { id: 'points', label: { en: 'Key points to cover', th: 'ประเด็นสำคัญ' }, type: 'textarea', ph: { en: 'player insight, campaign idea, creator strategy, content plan, timeline, KPI, budget, risk controls', th: 'อินไซต์ผู้เล่น, big idea, กลยุทธ์ครีเอเตอร์, แผนคอนเทนต์, ไทม์ไลน์, KPI, งบ, การควบคุมความเสี่ยง' } },
-      { id: 'data', label: { en: 'Data / proof available', th: 'ข้อมูล / หลักฐานที่มี' }, type: 'textarea', ph: { en: 'DAU trend, ranked matches, lapsed cohort size, top content formats, creator benchmark, sentiment summary', th: 'แนวโน้ม DAU, จำนวนแมตช์แรงก์, ขนาดผู้เล่นที่หายไป, ฟอร์แมตคอนเทนต์ที่เวิร์ก, benchmark ครีเอเตอร์, สรุป sentiment' } },
-      { id: 'time', label: { en: 'Talk time (min)', th: 'เวลา (นาที)' }, type: 'number', val: 15 },
-      { id: 'language', label: { en: 'Language', th: 'ภาษา' }, type: 'chips', single: true, opts: [
-        { v: 'TH', en: 'Thai', th: 'ไทย' },
-        { v: 'EN', en: 'English', th: 'อังกฤษ' },
-        { v: 'EN + TH notes', en: 'EN deck + TH speaker notes', th: 'สไลด์ EN + notes ไทย' }
-      ] }
+const AGENTS={
+  mango:{
+    name:'Tyga',emoji:'🥭',color:'tyga',
+    role:{en:'Creative Strategist',th:'นักวางกลยุทธ์ครีเอทีฟ'},
+    greet:{en:"Meow! Got an idea spark? Let's brainstorm! 🧡",th:'เมี๊ยว! มีไอเดียอะไรในใจไหม? เดี๋ยวระดมให้เลย 🧡'},
+    fields:[
+      {id:'product',label:{en:'Brand / product',th:'แบรนด์ / สินค้า'},type:'text',ph:{en:'e.g. oat milk brand',th:'เช่น แบรนด์โอ๊ตมิลค์'},req:true},
+      {id:'objective',label:{en:'Campaign objective',th:'วัตถุประสงค์'},type:'select',opts:[{v:'awareness',en:'Awareness',th:'สร้างการรับรู้'},{v:'conversion',en:'Conversion',th:'กระตุ้นยอดขาย'},{v:'retention',en:'Retention',th:'รักษาฐานลูกค้า'},{v:'launch',en:'New launch',th:'เปิดตัวสินค้าใหม่'}]},
+      {id:'audience',label:{en:'Target audience',th:'กลุ่มเป้าหมาย'},type:'text',ph:{en:'Gen Z office workers, Bangkok',th:'Gen Z พนักงานออฟฟิศ กรุงเทพฯ'},req:true},
+      {id:'channels',label:{en:'Channels',th:'ช่องทาง'},type:'chips',opts:['TikTok','IG Reels','IG Feed','Facebook','LINE OA','YouTube','OOH']},
+      {id:'tone',label:{en:'Tone',th:'โทน'},type:'text',ph:{en:'playful, slightly cheeky',th:'สนุก แอบกวน'}},
+      {id:'period',label:{en:'Campaign period',th:'ระยะเวลา'},type:'text',ph:{en:'June – July 2026',th:'มิ.ย. – ก.ค. 2026'}},
+      {id:'budget',label:{en:'Budget',th:'งบ'},type:'chips',single:true,opts:[{v:'Low',en:'Low',th:'ต่ำ'},{v:'Mid',en:'Mid',th:'กลาง'},{v:'High',en:'High',th:'สูง'}]},
+      {id:'language',label:{en:'Output language',th:'ภาษาผลลัพธ์'},type:'chips',single:true,opts:[{v:'TH',en:'Thai',th:'ไทย'},{v:'EN',en:'English',th:'อังกฤษ'},{v:'Bilingual',en:'Bilingual',th:'สองภาษา'}]},
+      {id:'count',label:{en:'Number of ideas',th:'จำนวนไอเดีย'},type:'number',val:8},
     ],
-    handoff: ['mango', 'indigo'],
-    tpl: (v) => `You are Nova, a strategy deck architect for FC Online Thailand.
+    handoff:['indigo','nova'],
+    tpl:(v)=>`You are Tyga, a creative marketing strategist.
 
-Create a Google Slides-ready presentation structure that can be used to persuade stakeholders. Make the deck clear, commercial, and specific to football-gaming behavior in Thailand. If data is missing, add a placeholder and explain what evidence should be inserted.
+Generate ${v.count||8} campaign ideas for:
+- Brand / product: ${v.product||'[fill in]'}
+- Objective: ${v.objective||'[fill in]'}
+- Target audience: ${v.audience||'[fill in]'}
+- Channels: ${v.channels||'[fill in]'}
+- Tone: ${v.tone||'[fill in]'}
+- Period: ${v.period||'[fill in]'}
+- Budget: ${v.budget||'[fill in]'}
+- Output language: ${v.language||'Bilingual'}
 
-DECK INPUT
-- Topic: ${v.topic || '[fill in]'}
-- Audience: ${v.audience || '[fill in]'}
-- Objective: ${v.objective || '[fill in]'}
-- Business context / problem: ${v.context || '[fill in]'}
-- Proposed idea / plan: ${v.proposal || '[fill in]'}
-- Number of slides: ${v.slides || 12}
-- Tone: ${v.tone || '[fill in]'}
-- Key points: ${v.points || '[fill in]'}
-- Data / proof available: ${v.data || '[fill in]'}
-- Talk time: ${v.time || 15} minutes
-- Language: ${v.language || 'EN'}
+For each idea provide:
+1. Campaign name (TH + EN)
+2. Big idea / hook (1 sentence)
+3. Why it works for this audience
+4. 3 content pillar suggestions
+5. Best-fit channel format
+6. Risk note
 
-OUTPUT REQUIREMENTS
-1. Start with a one-line storyline:
-   "Because [player/business tension], we should [strategy], so that [commercial outcome]."
-2. Add an executive summary with:
-   - recommendation
-   - expected impact
-   - investment / resource ask
-   - key risk
-3. Create a ${v.slides || 12}-slide structure.
-   For each slide include:
-   - Slide number
-   - Slide title
-   - Core message
-   - Body content
-   - Evidence / data needed
-   - Visual suggestion
-   - Speaker notes for 30-60 seconds
-   - Transition cue to next slide
-4. Use this narrative arc unless there is a better fit:
-   Hook -> Business problem -> Player insight -> Opportunity -> Strategy -> Big idea -> Activation plan -> Creator/content ecosystem -> KPI model -> Timeline/budget -> Risk controls -> Decision ask
-5. Include 3 appendix slide ideas for backup questions.
-6. End with:
-   - final decision ask
-   - 5 likely stakeholder objections
-   - recommended answers to those objections.`
+End with: top 3 recommended ideas + reasoning.`
   },
-
-  echo: {
-    name: 'Echo',
-    emoji: '🎧',
-    color: 'echo',
-    role: { en: 'Insight Analyst', th: 'นักวิเคราะห์อินไซต์' },
-    greet: {
-      en: "I'm all ears. Drop the FC Online comments and I'll turn them into actions 💚",
-      th: 'ส่งคอมเมนต์ FC Online มาได้เลย เดี๋ยวสรุปเป็น action ให้ 💚'
-    },
-    fields: [
-      { id: 'sources', label: { en: 'Source(s)', th: 'แหล่งที่มา' }, type: 'chips', opts: ['Facebook', 'Instagram', 'TikTok', 'YouTube', 'YouTube Live chat', 'LINE OA', 'Discord / Community', 'X/Twitter', 'Pantip', 'Survey', 'Support tickets'] },
-      { id: 'context', label: { en: 'Campaign / product context', th: 'แคมเปญ / บริบทสินค้า' }, type: 'text', ph: { en: 'FC Online Thailand ranked season, player-pack event, or top-up promotion', th: 'ซีซันแรงก์ FC Online Thailand, อีเวนต์แพ็กนักเตะ หรือโปรเติมเงิน' }, req: true },
-      { id: 'period', label: { en: 'Time range', th: 'ช่วงเวลา' }, type: 'text', ph: { en: '1-30 April 2026', th: '1-30 เม.ย. 2026' } },
-      { id: 'languages', label: { en: 'Comment language(s)', th: 'ภาษาในคอมเมนต์' }, type: 'chips', opts: ['TH', 'EN', 'Mixed TH/EN'] },
-      { id: 'themes', label: { en: 'Custom themes to track', th: 'ธีมที่อยากจับตา' }, type: 'text', ph: { en: 'server lag, matchmaking, pack value, event rewards, gameplay balance, cheaters, top-up price', th: 'เซิร์ฟแลค, matchmaking, ความคุ้มแพ็ก, รางวัลอีเวนต์, balance เกมเพลย์, โปร, ราคาเติมเงิน' } },
-      { id: 'outputUse', label: { en: 'How this analysis will be used', th: 'จะเอาผลวิเคราะห์ไปใช้อย่างไร' }, type: 'chips', single: true, opts: [
-        { v: 'Community report', en: 'Community report', th: 'รายงานคอมมูนิตี้' },
-        { v: 'Campaign optimization', en: 'Campaign optimization', th: 'ปรับแคมเปญ' },
-        { v: 'Crisis response', en: 'Crisis response', th: 'ตอบวิกฤต' },
-        { v: 'Product escalation', en: 'Product escalation', th: 'ส่งต่อทีมโปรดักต์' },
-        { v: 'Content idea mining', en: 'Content idea mining', th: 'หาไอเดียคอนเทนต์' }
-      ] },
-      { id: 'comments', label: { en: 'Raw comments / feedback', th: 'คอมเมนต์ดิบ' }, hint: { en: 'Paste comments here. One comment per line works best.', th: 'วางคอมเมนต์ตรงนี้ คอมเมนต์ละ 1 บรรทัดจะดีที่สุด' }, type: 'textarea', ph: { en: 'Paste FC Online Thailand comments here...', th: 'วางคอมเมนต์ FC Online Thailand ตรงนี้...' }, req: true }
+  indigo:{
+    name:'Mello',emoji:'📋',color:'mello',
+    role:{en:'Creative Producer',th:'โปรดิวเซอร์ครีเอทีฟ'},
+    greet:{en:"Purr... let's get this brief watertight 💜",th:'เป็นๆ มาทำบรีฟให้แน่นกันก่อนส่งดีไซน์เนอร์นะ 💜'},
+    fields:[
+      {id:'campaign',label:{en:'Campaign name',th:'ชื่อแคมเปญ'},type:'text',ph:{en:'Summer Splash 2026',th:'Summer Splash 2026'},req:true},
+      {id:'objective',label:{en:'Objective',th:'วัตถุประสงค์'},type:'text',ph:{en:'drive trial of new SPF range',th:'กระตุ้นทดลองใช้ครีมกันแดดใหม่'}},
+      {id:'audience',label:{en:'Audience',th:'กลุ่มเป้าหมาย'},type:'text',ph:{en:'women 22–35, beauty-conscious',th:'ผู้หญิง 22–35 รักสวยรักผิว'}},
+      {id:'message',label:{en:'Key message',th:'คีย์เมสเซจ'},type:'textarea',ph:{en:'Bright, beachy, breezy.',th:'สดใส ฉ่ำหน้าร้อน ผ่อนคลาย'}},
+      {id:'mood',label:{en:'Visual direction / mood',th:'ทิศทางภาพ / มู้ด'},type:'textarea',ph:{en:'editorial, sun-drenched, pastel beach palette',th:'editorial, แดดอุ่น, สีพาสเทลทะเล'}},
+      {id:'formats',label:{en:'Required formats',th:'ฟอร์แมตที่ต้องการ'},type:'chips',opts:['IG 1:1','IG Story 9:16','TikTok 9:16','KV / hero','FB cover','LINE OA banner','Web banner']},
+      {id:'deadline',label:{en:'Deadline',th:'เดดไลน์'},type:'text',ph:{en:'20 May 2026',th:'20 พ.ค. 2026'}},
+      {id:'assets',label:{en:'Required assets',th:'แอสเสตที่ต้องใช้'},type:'textarea',ph:{en:'logo, 3 product shots, talent',th:'โลโก้, ภาพสินค้า 3 มุม, talent'}},
     ],
-    handoff: ['mango'],
-    tpl: (v) => `You are Echo, a community insight analyst for FC Online Thailand.
+    handoff:['mango','nova'],
+    tpl:(v)=>`You are Mello, a creative producer writing a designer-ready brief.
 
-Analyze player feedback and turn it into decisions for marketing, community, and product teams. Be specific. Do not overclaim. If the sample is small or biased, state that clearly. Preserve original language in quotes.
+Build a complete design brief:
+- Campaign: ${v.campaign||'[fill in]'}
+- Objective: ${v.objective||'[fill in]'}
+- Audience: ${v.audience||'[fill in]'}
+- Key message: ${v.message||'[fill in]'}
+- Visual direction: ${v.mood||'[fill in]'}
+- Required formats: ${v.formats||'[fill in]'}
+- Deadline: ${v.deadline||'[fill in]'}
+- Assets needed: ${v.assets||'[fill in]'}
 
-ANALYSIS INPUT
-- Source(s): ${v.sources || '[fill in]'}
-- Context: ${v.context || '[fill in]'}
-- Time range: ${v.period || '[fill in]'}
-- Language(s): ${v.languages || '[fill in]'}
-- Custom themes to track: ${v.themes || 'none'}
-- Intended use: ${v.outputUse || '[fill in]'}
+Format as a scannable brief with sections:
+1. Project header + deadline
+2. Objective & success metric
+3. Audience snapshot
+4. Key message (TH/EN)
+5. Visual direction + mood board placeholders
+6. Format & specs table
+7. Brand mandatories
+8. Tone do / don't list
+9. Asset checklist
+10. Timeline & approval workflow`
+  },
+  nova:{
+    name:'Nova',emoji:'🎯',color:'nova',
+    role:{en:'Deck Architect',th:'สถาปนิกพรีเซนเทชัน'},
+    greet:{en:"Ready to build a killer deck? Let's go! 💙",th:'พร้อมสร้างสไลด์ขั้นเทพ! ไปเลย 💙'},
+    fields:[
+      {id:'topic',label:{en:'Presentation topic',th:'หัวข้อพรีเซนต์'},type:'text',ph:{en:'Q3 influencer campaign proposal',th:'ข้อเสนอแคมเปญ KOL Q3'},req:true},
+      {id:'audience',label:{en:'Audience',th:'ผู้ฟัง'},type:'chips',single:true,opts:[{v:'Internal team',en:'Internal team',th:'ทีมภายใน'},{v:'Client',en:'Client',th:'ลูกค้า'},{v:'Executive',en:'Executive',th:'ผู้บริหาร'},{v:'Public',en:'Public',th:'สาธารณะ'}]},
+      {id:'objective',label:{en:'Deck objective',th:'วัตถุประสงค์'},type:'chips',single:true,opts:[{v:'Persuade',en:'Persuade',th:'โน้มน้าว'},{v:'Inform',en:'Inform',th:'ให้ข้อมูล'},{v:'Sell',en:'Sell / pitch',th:'พิตช์ขาย'},{v:'Align',en:'Align',th:'สร้างความเข้าใจร่วม'}]},
+      {id:'slides',label:{en:'Number of slides',th:'จำนวนสไลด์'},type:'number',val:12},
+      {id:'tone',label:{en:'Tone',th:'โทน'},type:'text',ph:{en:'confident, data-led',th:'มั่นใจ ใช้ข้อมูลนำ'}},
+      {id:'points',label:{en:'Key points to cover',th:'ประเด็นสำคัญ'},type:'textarea',ph:{en:'market insight, big idea, KOL list, timeline, budget, KPIs',th:'อินไซต์ตลาด, big idea, KOL, ไทม์ไลน์, งบ, KPI'}},
+      {id:'time',label:{en:'Talk time (min)',th:'เวลา (นาที)'},type:'number',val:15},
+      {id:'language',label:{en:'Language',th:'ภาษา'},type:'chips',single:true,opts:[{v:'TH',en:'Thai',th:'ไทย'},{v:'EN',en:'English',th:'อังกฤษ'},{v:'EN + TH notes',en:'EN deck + TH speaker notes',th:'สไลด์ EN + notes ไทย'}]},
+    ],
+    handoff:['mango','indigo'],
+    tpl:(v)=>`You are Nova, a deck architect building a Google Slides–ready structure.
+
+Create a ${v.slides||12}-slide presentation:
+- Topic: ${v.topic||'[fill in]'}
+- Audience: ${v.audience||'[fill in]'}
+- Objective: ${v.objective||'[fill in]'}
+- Tone: ${v.tone||'[fill in]'}
+- Key points: ${v.points||'[fill in]'}
+- Talk time: ${v.time||15} minutes
+- Language: ${v.language||'EN'}
+
+For each slide output:
+- Slide # + Title
+- Body content (bullets or short paragraph)
+- Speaker notes (~30–60 sec)
+- Visual suggestion
+- Transition cue
+
+Narrative arc: Hook → Context → Insight → Big idea → Plan → Proof → Ask → Q&A
+End with a one-line storyline summary.`
+  },
+  echo:{
+    name:'Echo',emoji:'🎧',color:'echo',
+    role:{en:'Insight Analyst',th:'นักวิเคราะห์อินไซต์'},
+    greet:{en:"I'm all ears (and headphones)! Drop those comments 💚",th:'ฟังอยู่ทุกอย่าง! ส่งคอมเมนต์มาเลย 💚'},
+    fields:[
+      {id:'sources',label:{en:'Source(s)',th:'แหล่งที่มา'},type:'chips',opts:['Facebook','Instagram','TikTok','LINE OA','X/Twitter','Survey','Support tickets']},
+      {id:'context',label:{en:'Campaign / product context',th:'แคมเปญ / สินค้า'},type:'text',ph:{en:'Summer Splash 2026 launch',th:'เปิดตัว Summer Splash 2026'},req:true},
+      {id:'period',label:{en:'Time range',th:'ช่วงเวลา'},type:'text',ph:{en:'April 1–30, 2026',th:'1–30 เม.ย. 2026'}},
+      {id:'languages',label:{en:'Comment language(s)',th:'ภาษาในคอมเมนต์'},type:'chips',opts:['TH','EN','Mixed TH/EN']},
+      {id:'themes',label:{en:'Custom themes (optional)',th:'ธีมพิเศษ (ถ้ามี)'},type:'text',ph:{en:'pricing, scent, packaging',th:'ราคา, กลิ่น, แพ็กเกจ'}},
+      {id:'comments',label:{en:'Raw comments / feedback',th:'คอมเมนต์ดิบ'},hint:{en:'Paste comments here. One per line works best.',th:'วางคอมเมนต์ตรงนี้ คอมเมนต์ละ 1 บรรทัด'},type:'textarea',ph:{en:'Paste comments here…',th:'วางคอมเมนต์ตรงนี้…'},req:true},
+    ],
+    handoff:['mango'],
+    tpl:(v)=>`You are Echo, a community insight analyst.
+
+Analyze the following feedback:
+- Source: ${v.sources||'[fill in]'}
+- Context: ${v.context||'[fill in]'}
+- Time range: ${v.period||'[fill in]'}
+- Language(s): ${v.languages||'[fill in]'}
+- Custom themes: ${v.themes||'none'}
 - Raw comments:
 """
-${v.comments || '[paste comments here]'}
+${v.comments||'[paste comments here]'}
 """
 
-OUTPUT IN THIS EXACT STRUCTURE
-1. EXECUTIVE READ
-   - 3-sentence summary
-   - overall mood
-   - what changed or needs attention
-2. SENTIMENT BREAKDOWN
-   - Positive: __% with 2 sample quotes
-   - Neutral: __% with 1 sample quote
-   - Negative: __% with 2 sample quotes
-   - Confidence level: High / Medium / Low, with reason
-3. TOP THEMES RANKED BY FREQUENCY
-   For each theme include:
-   - frequency estimate
-   - what players are really saying
-   - example quote
-   - business impact
-4. PLAYER SEGMENTS DETECTED
-   Examples: ranked climbers, squad builders, free-to-play players, spenders, lapsed users, football fans, creator followers.
-5. PAIN POINTS
-   Top 5, ranked by severity and frequency.
-6. OPPORTUNITIES
-   Top 5 marketing or community opportunities.
-7. RISKS / RED FLAGS
-   Include issue, severity, likely spread, and owner: Marketing / Community / Product / CS.
-8. RECOMMENDED NEXT ACTIONS
-   3-5 actions ranked by impact vs effort.
-9. COMMUNITY RESPONSE DRAFTS
-   Write:
-   - 1 calm public reply in Thai
-   - 1 short LINE OA / Facebook update
-   - 1 internal escalation note
-10. CONTENT IDEAS FROM COMMENTS
-   Suggest 5 posts or short videos that respond to the community mood.
-11. WHAT TO MEASURE NEXT
-   Add metrics, tracking method, and review cadence.`
-  }
-};
+Output in this exact structure:
+1. SENTIMENT BREAKDOWN
+   Positive: __% (2 sample quotes)
+   Neutral:  __%
+   Negative: __% (2 sample quotes)
+2. TOP THEMES (ranked by frequency)
+3. PAIN POINTS (top 5)
+4. OPPORTUNITIES (top 5)
+5. RISKS / RED FLAGS
+6. RECOMMENDED NEXT ACTIONS (3–5, ranked by impact vs. effort)
 
+Preserve original language in quotes.`
+  },
+};
 
 /* ─────────── LANG ─────────── */
 function applyLang(scope=document){
