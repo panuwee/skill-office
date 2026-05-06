@@ -1092,6 +1092,9 @@ function generate(){
   const a=AGENTS[CUR];
   const v=STATE[CUR]||{};
   const text=a.tpl(v);
+
+  // ── Log generate event ──
+  logEvent(a.name, 'Generate');
   const out=document.getElementById('output');
   const pre=document.getElementById('outPre');
   const ar=document.getElementById('actionRow');
@@ -1133,7 +1136,33 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function escH(s){return esc(s);}
 
 /* ─────────── INIT ─────────── */
-/* ─────────── PANTRY ─────────── */
+/* ─────────── LOGGING ─────────── */
+// 👇 วาง URL ของ Apps Script ที่ Deploy แล้วตรงนี้
+const LOG_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+function logEvent(agent, action) {
+  if (!LOG_URL || LOG_URL === 'https://script.google.com/a/macros/garena.com/s/AKfycbyfdvoT5rue7RnYatbssxfSrTP744K7MoRZR8BQLhSCilIPkhnLhhc1v7HM5GGwcBWd/exec') return;
+
+  const now  = new Date();
+  const pad  = n => String(n).padStart(2, '0');
+  const timestamp = `${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const device = window.innerWidth <= 640 ? 'Mobile' : 'Desktop';
+
+  // mode: 'no-cors' ทำให้ส่งข้อมูลได้โดยไม่ติด CORS
+  // (response จะ opaque แต่ข้อมูลถึง Apps Script แน่นอน)
+  fetch(LOG_URL, {
+    method : 'POST',
+    mode   : 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body   : JSON.stringify({
+      timestamp,
+      agent,
+      action,
+      language: LANG.cur.toUpperCase(),
+      device,
+    }),
+  }).catch(() => {}); // silent fail — ไม่ขัด UX
+}
 const PANTRY_PROMPTS = [
   {
     num:1, title:'Master Thinking Prompt',
@@ -1394,6 +1423,8 @@ function togglePrompt(i){
 
 function copyPrompt(i,btn){
   copyText(PANTRY_PROMPTS[i].text, null);
+  // ── Log pantry copy event ──
+  logEvent(`Pantry #${PANTRY_PROMPTS[i].num} ${PANTRY_PROMPTS[i].title}`, 'Copy');
   btn.classList.add('copied');
   btn.textContent='✓ Copied!';
   setTimeout(()=>{btn.classList.remove('copied');btn.textContent='📋 Copy';},1800);
