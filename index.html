@@ -139,6 +139,8 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 .cat-svg.sitting .leg-a,.cat-svg.sitting .leg-b{animation:none;transform:rotate(0deg) !important}
 .cat-svg.sitting .body-group{animation:none;transform:translateY(5px) !important}
 .cat-svg.sitting .tail{animation:none;transform:rotate(-28deg) !important}
+body.pantry-open .cat-walker,
+body.pantry-open .cat-svg *{animation-play-state:paused !important}
 /* Blink */
 .cat-svg .eye-lid{transform-origin:50% 50%;animation:blink 4s ease-in-out infinite}
 .cat-svg.sitting .eye-lid{animation:blink 2s ease-in-out infinite}
@@ -306,8 +308,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 
 /* PANTRY SCRIM */
 .pantry-scrim{
-  position:fixed;inset:0;background:rgba(42,38,32,.45);
-  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  position:fixed;inset:0;background:rgba(42,38,32,.26);
   opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:98
 }
 .pantry-scrim.on{opacity:1;pointer-events:auto}
@@ -1919,6 +1920,7 @@ pantryClose.addEventListener('click',closePantry);
 
 function openPantry(){
   buildPantry();
+  document.body.classList.add('pantry-open');
   pantryModal.classList.add('on');
   pantryScrim.classList.add('on');
   document.body.style.overflow='hidden';
@@ -1926,6 +1928,7 @@ function openPantry(){
 function closePantry(){
   pantryModal.classList.remove('on');
   pantryScrim.classList.remove('on');
+  document.body.classList.remove('pantry-open');
   document.body.style.overflow='';
 }
 
