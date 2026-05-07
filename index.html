@@ -1377,6 +1377,84 @@ function getDevice(){
   return window.innerWidth <= 640 ? 'Mobile' : 'Desktop';
 }
 
+function usagePayload(agent, action, meta={}, timestamp=''){
+  return {
+    timestamp,
+    userEmail: getAuthUserEmail(),
+    userId: getAuthUserId(),
+    authProvider: getAuthProvider(),
+    agent,
+    action,
+    language: LANG.cur.toUpperCase(),
+    device: getDevice(),
+    promptId: meta.promptId || '',
+    promptType: meta.promptType || '',
+    promptGroup: meta.promptGroup || '',
+    promptName: meta.promptName || '',
+    promptNameTh: meta.promptNameTh || '',
+    destination: meta.destination || '',
+  };
+}
+
+async function insertSupabaseRow(table, row){
+  if(!supabaseClient || !AUTH_USER) return { ok:false, skipped:true };
+
+  let { error } = await supabaseClient.from(table).insert(row);
+  if(error && /auth_provider/i.test(error.message || '')){
+    const { auth_provider, ...fallbackRow } = row;
+    ({ error } = await supabaseClient.from(table).insert(fallbackRow));
+  }
+
+  if(error){
+    console.warn(`Supabase insert failed: ${table}`, error);
+    return { ok:false, error };
+  }
+  return { ok:true };
+}
+
+function logUsageToSupabase(payload){
+  if(!supabaseClient || !AUTH_USER) return;
+  insertSupabaseRow('usage_logs', {
+    user_id: payload.userId,
+    user_email: payload.userEmail,
+    auth_provider: payload.authProvider || 'google',
+    agent: payload.agent,
+    action: payload.action,
+    language: payload.language,
+    device: payload.device,
+    prompt_id: payload.promptId,
+    prompt_type: payload.promptType,
+    prompt_group: payload.promptGroup,
+    prompt_name: payload.promptName,
+    prompt_name_th: payload.promptNameTh,
+    destination: payload.destination,
+  });
+}
+
+function sendAppsScriptLog(payload){
+  if (!LOG_URL || LOG_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
+
+  fetch(LOG_URL, {
+    method : 'POST',
+    mode   : 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body   : JSON.stringify(payload),
+  }).catch(() => {});
+}
+
+async function sendFeedbackToSupabase(detail, type){
+  if(!supabaseClient || !AUTH_USER) return { ok:false, skipped:true };
+  return insertSupabaseRow('feedbacks', {
+    user_id: getAuthUserId(),
+    user_email: getAuthUserEmail(),
+    auth_provider: getAuthProvider() || 'google',
+    feedback_type: type === 'Idea' ? 'Idea' : 'Issue',
+    feedback_detail: detail,
+    language: LANG.cur.toUpperCase(),
+    device: getDevice(),
+  });
+}
+
 function getAgentPromptMeta(id, agent) {
   const meta = {
     mango:  {promptId:'agent-tyga',  promptName:'Tyga - Campaign Idea Generator',       promptNameTh:'Tyga - สร้างไอเดียแคมเปญ'},
@@ -1413,36 +1491,13 @@ function destinationFromUrl(url) {
 }
 
 function logEvent(agent, action, meta={}) {
-  if (!LOG_URL || LOG_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
-
   const now  = new Date();
   const pad  = n => String(n).padStart(2, '0');
   const timestamp = `${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  const device = getDevice();
+  const payload = usagePayload(agent, action, meta, timestamp);
 
-  // mode: 'no-cors' ทำให้ส่งข้อมูลได้โดยไม่ติด CORS
-  // (response จะ opaque แต่ข้อมูลถึง Apps Script แน่นอน)
-  fetch(LOG_URL, {
-    method : 'POST',
-    mode   : 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify({
-      timestamp,
-      userEmail: getAuthUserEmail(),
-      userId: getAuthUserId(),
-      authProvider: getAuthProvider(),
-      agent,
-      action,
-      language: LANG.cur.toUpperCase(),
-      device,
-      promptId: meta.promptId || '',
-      promptType: meta.promptType || '',
-      promptGroup: meta.promptGroup || '',
-      promptName: meta.promptName || '',
-      promptNameTh: meta.promptNameTh || '',
-      destination: meta.destination || '',
-    }),
-  }).catch(() => {}); // silent fail — ไม่ขัด UX
+  logUsageToSupabase(payload);
+  sendAppsScriptLog(payload);
 }
 const PANTRY_GROUPS = [
   {
@@ -1818,7 +1873,7 @@ function updateFeedbackPlaceholder(){
   feedbackDetail.placeholder = feedbackDetail.dataset[LANG.cur === 'th' ? 'placeholderTh' : 'placeholderEn'] || feedbackDetail.placeholder;
 }
 
-function sendFeedback(){
+async function sendFeedback(){
   if(!requireAuth()) return;
   const detail = feedbackDetail.value.trim();
   if(detail.length < 3) return;
@@ -1827,23 +1882,24 @@ function sendFeedback(){
   const pad = n => String(n).padStart(2, '0');
   const timestamp = `${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
-  fetch(LOG_URL, {
-    method:'POST',
-    mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      eventType:'Feedback',
-      feedbackId,
-      timestamp,
-      userEmail:getAuthUserEmail(),
-      userId:getAuthUserId(),
-      authProvider:getAuthProvider(),
-      feedbackType,
-      feedbackDetail:detail,
-      language:LANG.cur.toUpperCase(),
-      device:getDevice(),
-    }),
-  }).catch(()=>{});
+  const supabaseResult = await sendFeedbackToSupabase(detail, feedbackType);
+  if(supabaseClient && !supabaseResult.ok){
+    showToast(LANG.cur==='th'?'ส่ง Feedback ไม่สำเร็จ':'Feedback failed');
+    return;
+  }
+
+  sendAppsScriptLog({
+    eventType:'Feedback',
+    feedbackId,
+    timestamp,
+    userEmail:getAuthUserEmail(),
+    userId:getAuthUserId(),
+    authProvider:getAuthProvider(),
+    feedbackType,
+    feedbackDetail:detail,
+    language:LANG.cur.toUpperCase(),
+    device:getDevice(),
+  });
 
   feedbackDetail.value = '';
   feedbackSend.disabled = true;
