@@ -31,6 +31,12 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 .brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--tyga),var(--tyga-d));display:grid;place-items:center;font-size:20px;transform:rotate(-4deg);box-shadow:0 3px 0 rgba(180,90,20,.35),0 5px 14px rgba(180,90,20,.22);flex-shrink:0}
 .brand-name{font-family:'Fraunces',serif;font-weight:700;font-size:17px}
 .brand-sub{font-size:10px;color:var(--ink-2);font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-top:1px}
+.auth-box{margin-left:auto;display:flex;align-items:center;gap:8px;min-width:0}
+.auth-email{max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2);font-size:12px}
+.login-btn,.logout-btn{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:7px 13px;font:inherit;font-size:12px;font-weight:700;box-shadow:var(--sh);white-space:nowrap}
+.login-btn:hover,.logout-btn:hover{border-color:var(--ink);transform:translateY(-1px)}
+.feedback-btn{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:7px 13px;font:inherit;font-size:12px;font-weight:700;box-shadow:var(--sh);white-space:nowrap}
+.feedback-btn:hover{border-color:var(--ink);transform:translateY(-1px)}
 .lang-toggle{display:flex;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:3px;gap:1px;flex-shrink:0}
 .lang-toggle button{border:0;background:0;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700;color:var(--ink-2);transition:all .18s;font-family:inherit}
 .lang-toggle button.on{background:var(--ink);color:var(--paper)}
@@ -235,12 +241,51 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .22s ease;z-index:200;box-shadow:var(--sh-lg);white-space:nowrap}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* FEEDBACK */
+.feedback-scrim{position:fixed;inset:0;background:rgba(42,38,32,.38);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:180}
+.feedback-scrim.on{opacity:1;pointer-events:auto}
+.feedback-modal{position:fixed;top:76px;right:16px;width:min(390px,calc(100vw - 24px));background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh-lg);z-index:181;opacity:0;pointer-events:none;transform:translateY(-8px);transition:all .2s ease;overflow:hidden}
+.feedback-modal.on{opacity:1;pointer-events:auto;transform:translateY(0)}
+.feedback-head{padding:16px 18px 12px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.feedback-title{font-family:'Fraunces',serif;font-size:18px;font-weight:700;line-height:1.2}
+.feedback-sub{font-size:12px;color:var(--ink-2);margin-top:3px}
+.feedback-close{width:30px;height:30px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--ink);background:var(--paper);flex-shrink:0}
+.feedback-body{padding:16px 18px}
+.feedback-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.feedback-option{border:1.5px solid var(--line);border-radius:9px;background:var(--paper);padding:14px 10px;text-align:center;color:var(--ink);font:inherit;cursor:pointer}
+.feedback-option strong{display:block;font-size:15px;margin-top:6px}
+.feedback-option span{display:block;font-size:11px;color:var(--ink-2);margin-top:2px}
+.feedback-option.on{border-color:var(--tyga-d);background:var(--tyga-s)}
+.feedback-detail{width:100%;height:136px;border:1px solid var(--line);border-radius:9px;background:#f7f5f0;padding:12px;font:inherit;font-size:13px;line-height:1.5;color:var(--ink);resize:vertical;outline:0}
+.feedback-detail:focus{border-color:var(--tyga-d);background:var(--paper)}
+.feedback-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(255,251,243,.82)}
+.feedback-secondary,.feedback-send{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px 13px;font:inherit;font-size:12px;font-weight:700;color:var(--ink)}
+.feedback-send{background:#c9f2d8;border-color:#9fd8b2;color:#247544}
+.feedback-send:disabled{opacity:.55;cursor:not-allowed}
+.feedback-foot{justify-content:flex-end}
+
+/* AUTH */
+.auth-scrim{position:fixed;inset:0;background:rgba(42,38,32,.42);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:190}
+.auth-scrim.on{opacity:1;pointer-events:auto}
+.auth-modal{position:fixed;top:50%;left:50%;width:min(380px,calc(100vw - 28px));background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-lg);z-index:191;opacity:0;pointer-events:none;transform:translate(-50%,-48%);transition:all .2s ease;overflow:hidden}
+.auth-modal.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+.auth-head{padding:18px 20px 12px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.auth-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;line-height:1.2}
+.auth-sub{font-size:12px;color:var(--ink-2);margin-top:4px;line-height:1.5}
+.auth-close{width:30px;height:30px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--ink);background:var(--paper);flex-shrink:0}
+.auth-body{padding:18px 20px 20px}
+.oauth-btn{width:100%;border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:12px 14px;font:inherit;font-size:13px;font-weight:800;color:var(--ink);box-shadow:var(--sh)}
+.oauth-btn:hover{border-color:var(--tyga-d);background:var(--tyga-s)}
+
 @media(max-width:620px){
   .office{padding:16px 12px 60px}
   .reception{flex-wrap:wrap}
   .zone-title{font-size:17px}
   .topbar{padding:12px 14px}
   .brand-name{font-size:15px}
+  .auth-box{order:3;flex-basis:100%;margin-left:0;justify-content:flex-start}
+  .auth-email{max-width:160px}
+  .feedback-modal{top:88px;right:12px}
   .zone-scene{height:110px}
 }
 
@@ -404,6 +449,12 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
       <div class="brand-sub" data-en="AI creative workplace" data-th="ทีม AI ครีเอทีฟ">AI creative workplace</div>
     </div>
   </div>
+  <div class="auth-box" id="authBox">
+    <span class="auth-email" id="authEmail" data-en="Not signed in" data-th="ยังไม่ได้เข้าสู่ระบบ">Not signed in</span>
+    <button class="login-btn" id="loginBtn" type="button" data-en="Login" data-th="เข้าสู่ระบบ">Login</button>
+    <button class="logout-btn" id="logoutBtn" type="button" hidden data-en="Logout" data-th="ออกจากระบบ">Logout</button>
+  </div>
+  <button class="feedback-btn" id="feedbackBtn" data-en="Feedback" data-th="Feedback">Feedback</button>
   <div class="lang-toggle">
     <button class="on" data-lang="en">EN</button>
     <button data-lang="th">TH</button>
@@ -581,7 +632,49 @@ button{font-family:inherit;cursor:pointer;border:0;background:0}
   </footer>
 </aside>
 <div class="toast" id="toast"></div>
+<div class="auth-scrim" id="authScrim"></div>
+<section class="auth-modal" id="authModal" aria-hidden="true">
+  <div class="auth-head">
+    <div>
+      <div class="auth-title" data-en="Login required" data-th="ต้องเข้าสู่ระบบก่อน">Login required</div>
+      <div class="auth-sub" data-en="Please login with Google before using Skill Office. We use your account only for usage metrics and feedback." data-th="กรุณา Login ด้วย Google ก่อนใช้งาน Skill Office ระบบใช้บัญชีของคุณเพื่อเก็บ metric และ feedback เท่านั้น">Please login with Google before using Skill Office. We use your account only for usage metrics and feedback.</div>
+    </div>
+    <button class="auth-close" id="authClose" aria-label="Close login">x</button>
+  </div>
+  <div class="auth-body">
+    <button class="oauth-btn" id="authGoogleBtn" type="button" data-en="Continue with Google" data-th="เข้าสู่ระบบด้วย Google">Continue with Google</button>
+  </div>
+</section>
+<div class="feedback-scrim" id="feedbackScrim"></div>
+<section class="feedback-modal" id="feedbackModal" aria-hidden="true">
+  <div class="feedback-head">
+    <div>
+      <div class="feedback-title" data-en="What would you like to share?" data-th="อยากแชร์อะไรกับทีมพัฒนา?">What would you like to share?</div>
+      <div class="feedback-sub" data-en="Send an idea or improvement for Skill Office." data-th="ส่งไอเดียหรือข้อเสนอปรับปรุง Skill Office">Send an idea or improvement for Skill Office.</div>
+    </div>
+    <button class="feedback-close" id="feedbackClose" aria-label="Close feedback">x</button>
+  </div>
+  <div class="feedback-body">
+    <div class="feedback-options">
+      <button class="feedback-option on" data-feedback-type="Issue" type="button">
+        <div style="font-size:24px">!</div>
+        <strong data-en="Issue" data-th="ปัญหา">Issue</strong>
+        <span data-en="with this tool" data-th="ในการใช้งาน">with this tool</span>
+      </button>
+      <button class="feedback-option" data-feedback-type="Idea" type="button">
+        <div style="font-size:24px">?</div>
+        <strong data-en="Idea" data-th="ไอเดีย">Idea</strong>
+        <span data-en="to improve Skill Office" data-th="เพื่อปรับปรุง Skill Office">to improve Skill Office</span>
+      </button>
+    </div>
+    <textarea class="feedback-detail" id="feedbackDetail" maxlength="2000" placeholder="My idea for improving Skill Office is..." data-placeholder-en="My idea for improving Skill Office is..." data-placeholder-th="ไอเดียหรือข้อเสนอปรับปรุงของฉันคือ..."></textarea>
+  </div>
+  <div class="feedback-foot">
+    <button class="feedback-send" id="feedbackSend" type="button" disabled data-en="Send" data-th="ส่ง">Send</button>
+  </div>
+</section>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ─────────── CAT SVG TEMPLATES ─────────── */
 
@@ -1005,8 +1098,10 @@ document.querySelectorAll('.lang-toggle button').forEach(btn=>{
     btn.classList.add('on');
     LANG.cur=btn.dataset.lang;
     applyLang();
+    updateAuthUI();
     if(CUR) renderAgent(CUR);
     if(document.getElementById('pantryModal')?.classList.contains('on')) buildPantry();
+    updateFeedbackPlaceholder();
   });
 });
 
@@ -1152,11 +1247,135 @@ function handoff(tid){
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(showToast._t);showToast._t=setTimeout(()=>t.classList.remove('on'),2200);}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function escH(s){return esc(s);}
+function uid(prefix='id'){
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+}
 
 /* ─────────── INIT ─────────── */
 /* ─────────── LOGGING ─────────── */
 // 👇 วาง URL ของ Apps Script ที่ Deploy แล้วตรงนี้
 const LOG_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+const SUPABASE_URL = 'https://zmahczfufdihaarxtzsc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InptYWhjemZ1ZmRpaGFhcnh0enNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTYzNjYsImV4cCI6MjA5MzY5MjM2Nn0.aT6TQ43GRg5_JGurXLaQRzd8wg82GnC77W7DS1XbOSw';
+const SUPABASE_READY =
+  !SUPABASE_URL.includes('YOUR_SUPABASE') &&
+  !SUPABASE_ANON_KEY.includes('YOUR_SUPABASE') &&
+  Boolean(window.supabase);
+const supabaseClient = SUPABASE_READY ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let AUTH_USER = null;
+
+function getAuthUserEmail(){
+  return (AUTH_USER?.email || '').trim();
+}
+
+function getAuthUserId(){
+  return AUTH_USER?.id || '';
+}
+
+function getAuthProvider(){
+  return AUTH_USER?.app_metadata?.provider || '';
+}
+
+function updateAuthUI(){
+  const authEmail = document.getElementById('authEmail');
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const signedIn = Boolean(AUTH_USER);
+  if(authEmail){
+    authEmail.textContent = signedIn
+      ? getAuthUserEmail()
+      : (LANG.cur === 'th' ? 'ยังไม่ได้เข้าสู่ระบบ' : 'Not signed in');
+  }
+  if(loginBtn) loginBtn.hidden = signedIn;
+  if(logoutBtn) logoutBtn.hidden = !signedIn;
+}
+
+async function setupAuth(){
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const authGoogleBtn = document.getElementById('authGoogleBtn');
+  const authClose = document.getElementById('authClose');
+  const authScrim = document.getElementById('authScrim');
+
+  loginBtn?.addEventListener('click',openAuthModal);
+  authGoogleBtn?.addEventListener('click',signInWithOAuth);
+  authClose?.addEventListener('click',closeAuthModal);
+  authScrim?.addEventListener('click',closeAuthModal);
+  logoutBtn?.addEventListener('click',async()=>{
+    if(supabaseClient) await supabaseClient.auth.signOut();
+    AUTH_USER = null;
+    updateAuthUI();
+  });
+
+  if(!supabaseClient){
+    updateAuthUI();
+    return;
+  }
+
+  const { data } = await supabaseClient.auth.getUser();
+  AUTH_USER = data?.user || null;
+  updateAuthUI();
+  supabaseClient.auth.onAuthStateChange((_event, session)=>{
+    AUTH_USER = session?.user || null;
+    updateAuthUI();
+    if(AUTH_USER) closeAuthModal();
+  });
+}
+
+async function signInWithOAuth(){
+  if(!supabaseClient){
+    showToast(LANG.cur === 'th' ? 'กรุณาตั้งค่า Supabase ก่อนใช้งาน Login' : 'Configure Supabase before using Login');
+    return;
+  }
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}${window.location.pathname}`,
+    },
+  });
+  if(error) showToast(error.message);
+}
+
+function openAuthModal(){
+  const authModal = document.getElementById('authModal');
+  const authScrim = document.getElementById('authScrim');
+  authModal?.classList.add('on');
+  authScrim?.classList.add('on');
+  authModal?.setAttribute('aria-hidden','false');
+}
+
+function closeAuthModal(){
+  const authModal = document.getElementById('authModal');
+  const authScrim = document.getElementById('authScrim');
+  authModal?.classList.remove('on');
+  authScrim?.classList.remove('on');
+  authModal?.setAttribute('aria-hidden','true');
+}
+
+function isAuthExemptClick(target){
+  return Boolean(target.closest('.lang-toggle,#authModal,#authScrim,#loginBtn,#logoutBtn,#authGoogleBtn,#authClose'));
+}
+
+function requireAuth(event){
+  if(AUTH_USER) return true;
+  if(event && isAuthExemptClick(event.target)) return true;
+  if(event){
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  openAuthModal();
+  return false;
+}
+
+document.addEventListener('click',(event)=>{
+  if(AUTH_USER || isAuthExemptClick(event.target)) return;
+  const protectedTarget = event.target.closest('button,a,.zone,.pantry,.prompt-card,.pa-btn,.drawer,.pantry-modal,.feedback-modal');
+  if(protectedTarget) requireAuth(event);
+},true);
+
+function getDevice(){
+  return window.innerWidth <= 640 ? 'Mobile' : 'Desktop';
+}
 
 function getAgentPromptMeta(id, agent) {
   const meta = {
@@ -1199,7 +1418,7 @@ function logEvent(agent, action, meta={}) {
   const now  = new Date();
   const pad  = n => String(n).padStart(2, '0');
   const timestamp = `${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  const device = window.innerWidth <= 640 ? 'Mobile' : 'Desktop';
+  const device = getDevice();
 
   // mode: 'no-cors' ทำให้ส่งข้อมูลได้โดยไม่ติด CORS
   // (response จะ opaque แต่ข้อมูลถึง Apps Script แน่นอน)
@@ -1209,6 +1428,9 @@ function logEvent(agent, action, meta={}) {
     headers: { 'Content-Type': 'application/json' },
     body   : JSON.stringify({
       timestamp,
+      userEmail: getAuthUserEmail(),
+      userId: getAuthUserId(),
+      authProvider: getAuthProvider(),
       agent,
       action,
       language: LANG.cur.toUpperCase(),
@@ -1543,6 +1765,92 @@ function copyOpenPrompt(i,url){
   showToast('Copied - opening...');
 }
 
+let feedbackType = 'Issue';
+const feedbackBtn=document.getElementById('feedbackBtn');
+const feedbackScrim=document.getElementById('feedbackScrim');
+const feedbackModal=document.getElementById('feedbackModal');
+const feedbackClose=document.getElementById('feedbackClose');
+const feedbackDetail=document.getElementById('feedbackDetail');
+const feedbackSend=document.getElementById('feedbackSend');
+
+function setupFeedback(){
+  if(!feedbackBtn || !feedbackModal) return;
+  feedbackBtn.addEventListener('click',openFeedback);
+  feedbackScrim.addEventListener('click',closeFeedback);
+  feedbackClose.addEventListener('click',closeFeedback);
+  feedbackDetail.addEventListener('input',()=>{
+    feedbackSend.disabled = feedbackDetail.value.trim().length < 3;
+  });
+  feedbackSend.addEventListener('click',sendFeedback);
+  document.querySelectorAll('.feedback-option').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      feedbackType = btn.dataset.feedbackType || 'Idea';
+      updateFeedbackOptions();
+      feedbackDetail.focus();
+    });
+  });
+  updateFeedbackPlaceholder();
+}
+
+function openFeedback(){
+  if(!requireAuth()) return;
+  feedbackModal.classList.add('on');
+  feedbackScrim.classList.add('on');
+  feedbackModal.setAttribute('aria-hidden','false');
+  updateFeedbackPlaceholder();
+  setTimeout(()=>feedbackDetail.focus(),80);
+}
+
+function closeFeedback(){
+  feedbackModal.classList.remove('on');
+  feedbackScrim.classList.remove('on');
+  feedbackModal.setAttribute('aria-hidden','true');
+}
+
+function updateFeedbackOptions(){
+  document.querySelectorAll('.feedback-option').forEach(btn=>{
+    btn.classList.toggle('on', btn.dataset.feedbackType === feedbackType);
+  });
+}
+
+function updateFeedbackPlaceholder(){
+  if(!feedbackDetail) return;
+  feedbackDetail.placeholder = feedbackDetail.dataset[LANG.cur === 'th' ? 'placeholderTh' : 'placeholderEn'] || feedbackDetail.placeholder;
+}
+
+function sendFeedback(){
+  if(!requireAuth()) return;
+  const detail = feedbackDetail.value.trim();
+  if(detail.length < 3) return;
+  const feedbackId = uid('feedback');
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const timestamp = `${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  fetch(LOG_URL, {
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      eventType:'Feedback',
+      feedbackId,
+      timestamp,
+      userEmail:getAuthUserEmail(),
+      userId:getAuthUserId(),
+      authProvider:getAuthProvider(),
+      feedbackType,
+      feedbackDetail:detail,
+      language:LANG.cur.toUpperCase(),
+      device:getDevice(),
+    }),
+  }).catch(()=>{});
+
+  feedbackDetail.value = '';
+  feedbackSend.disabled = true;
+  closeFeedback();
+  showToast(LANG.cur==='th'?'ส่ง Feedback แล้ว':'Feedback sent');
+}
+
 // Pantry open/close
 const pantryBar=document.getElementById('pantryBar');
 const pantryScrim=document.getElementById('pantryScrim');
@@ -1566,6 +1874,8 @@ function closePantry(){
 }
 
 applyLang();
+setupAuth();
+setupFeedback();
 setupCats();
 requestAnimationFrame(animateCats);
 window.addEventListener('resize',()=>{
